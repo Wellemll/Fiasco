@@ -35,6 +35,27 @@
     </div>
 
     <script>
+        function genererCode() {
+    // On récupère les numéros qui sont dans les stats
+    const statsDiv = document.querySelectorAll('.boule-chaude');
+    const chauds = Array.from(statsDiv).map(el => el.innerText);
+    
+    // Si on n'a pas assez de données, on prend du hasard
+    let monCode = [];
+    while(monCode.length < 7) {
+        let n = Math.floor(Math.random() * 50) + 1;
+        if(!monCode.includes(n)) monCode.push(n);
+    }
+    
+    // On trie pour que ça fasse joli
+    monCode.sort((a, b) => a - b);
+    
+    const codeDiv = document.getElementById('mon-code');
+    codeDiv.innerHTML = '';
+    monCode.forEach(n => {
+        codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`;
+    });
+}
         async function updateDashboard() {
             try {
                 const res = await fetch('/api/tirages');
