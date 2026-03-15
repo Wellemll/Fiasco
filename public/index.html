@@ -32,14 +32,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.5</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.6 Pro</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 20px; font-style: italic; color: #ffb703; font-size: 0.9em;">
             Analyse des 1 321 tirages...
         </div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('tab-gen')">💎 Générateur</button>
+            <button class="tab-btn active" onclick="openTab('tab-gen')">💎 Générateur Pro</button>
             <button class="tab-btn" onclick="openTab('tab-stats')">🔥 Statistiques</button>
             <button class="tab-btn" onclick="openTab('tab-check')">🔍 Testeur</button>
             <button class="tab-btn" onclick="openTab('tab-hist')">📂 Archives</button>
@@ -47,8 +47,9 @@
 
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
-                <h2>Combinaison Fiasco-Optimisée</h2>
-                <button onclick="genererCode()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer</button>
+                <h2>Générateur Intelligent</h2>
+                <p><small>Combine Chauds + Retards + Somme Magique</small></p>
+                <button onclick="genererCode()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer une combinaison</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
         </div>
@@ -61,7 +62,7 @@
 
             <div class="card" style="background: #1d3557;">
                 <h2>🧊 Numéros "En Retard"</h2>
-                <p><small>Dernière sortie la plus lointaine.</small></p>
+                <p><small>Nombre de tirages écoulés depuis la dernière sortie.</small></p>
                 <div id="retard-stats" class="grid"></div>
             </div>
 
@@ -131,22 +132,64 @@
             event.currentTarget.classList.add('active');
         }
 
-        function genererCode() {
-            const boulesChaudes = Array.from(document.querySelectorAll('.boule-chaude')).map(el => parseInt(el.innerText));
-            let monCode = [];
-            let sourceChaude = [...boulesChaudes];
-            while(monCode.length < 4 && sourceChaude.length > 0) {
-                let index = Math.floor(Math.random() * sourceChaude.length);
-                monCode.push(sourceChaude.splice(index, 1)[0]);
-            }
-            while(monCode.length < 7) {
-                let n = Math.floor(Math.random() * 50) + 1;
-                if(!monCode.includes(n)) monCode.push(n);
-            }
-            monCode.sort((a, b) => a - b);
+        async function genererCode() {
             const codeDiv = document.getElementById('mon-code');
+            codeDiv.innerHTML = 'Calcul de la combinaison idéale...';
+
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+
+            const counts = {};
+            const lastSeen = {};
+            data.forEach((t, index) => {
+                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                    counts[n] = (counts[n] || 0) + 1;
+                    if (lastSeen[n] === undefined) lastSeen[n] = index;
+                });
+            });
+
+            const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
+            const enRetard = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
+
+            let monCode = [];
+            let tentative = 0;
+            let sommeOk = false;
+
+            while (!sommeOk && tentative < 100) {
+                monCode = [];
+                tentative++;
+
+                let sourceChauds = [...chauds];
+                for(let i=0; i<3; i++) {
+                    let idx = Math.floor(Math.random() * sourceChauds.length);
+                    monCode.push(sourceChauds.splice(idx, 1)[0]);
+                }
+
+                let sourceRetard = [...enRetard].filter(n => !monCode.includes(n));
+                for(let i=0; i<2; i++) {
+                    if(sourceRetard.length > 0) {
+                        let idx = Math.floor(Math.random() * sourceRetard.length);
+                        monCode.push(sourceRetard.splice(idx, 1)[0]);
+                    }
+                }
+
+                while(monCode.length < 7) {
+                    let n = Math.floor(Math.random() * 50) + 1;
+                    if(!monCode.includes(n)) monCode.push(n);
+                }
+
+                const somme = monCode.reduce((a, b) => a + b, 0);
+                if (somme >= 140 && somme <= 210) sommeOk = true;
+            }
+
+            monCode.sort((a, b) => a - b);
+            const sommeFinale = monCode.reduce((a, b) => a + b, 0);
+            
             codeDiv.innerHTML = '';
-            monCode.forEach(n => { codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`; });
+            monCode.forEach(n => {
+                codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`;
+            });
+            codeDiv.innerHTML += `<br><small style="color:#a3b18a;">Somme validée : ${sommeFinale} (Optimisée en ${tentative} essais)</small>`;
         }
 
         async function updateDashboard() {
@@ -157,7 +200,6 @@
                 const dateDebut = data[data.length - 1].date_tirage;
                 document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés (depuis le ${dateDebut})`;
 
-                // Calculs globaux
                 const counts = {};
                 const lastSeen = {};
                 let totalSommes = 0;
@@ -165,25 +207,20 @@
 
                 data.forEach((t, index) => {
                     const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a, b) => a - b);
-                    
-                    // Somme
                     totalSommes += nums.reduce((a, b) => a + b, 0);
 
-                    // Suites
                     let aUneSuite = false;
                     for (let i = 0; i < nums.length - 1; i++) {
                         if (nums[i+1] === nums[i] + 1) aUneSuite = true;
                     }
                     if (aUneSuite) tiragesAvecSuites++;
 
-                    // Fréquences & Retards
                     nums.forEach(n => {
                         counts[n] = (counts[n] || 0) + 1;
                         if (lastSeen[n] === undefined) lastSeen[n] = index;
                     });
                 });
 
-                // Affichage Chauds
                 const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
                 const statDiv = document.getElementById('statistiques');
                 statDiv.innerHTML = '';
@@ -191,7 +228,6 @@
                     statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
                 });
 
-                // Affichage Retard
                 const sortedRetard = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 10);
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
@@ -199,13 +235,11 @@
                     retardDiv.innerHTML += `<div><span class="boule boule-froide">${num}</span><br><small><strong>${wait}</strong> tirages</small></div>`;
                 });
 
-                // Affichage Somme & Suites
                 const moyenneSomme = Math.round(totalSommes / data.length);
                 document.getElementById('resultat-somme').innerText = moyenneSomme;
                 document.getElementById('zone-somme').innerText = `Zone d'Or : ${moyenneSomme - 30} à ${moyenneSomme + 30}`;
                 document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(1)}%`;
 
-                // Menus
                 const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
                 const selectAn = document.getElementById('select-annee');
                 selectAn.innerHTML = '<option value="">Choisir année</option>';
