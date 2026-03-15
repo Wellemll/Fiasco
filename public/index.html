@@ -15,11 +15,16 @@
         .grid { display: flex; flex-wrap: wrap; justify-content: center; }
         select { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; font-size: 16px; cursor: pointer; }
         .archive-item { border-bottom: 1px solid #444; padding: 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; }
+        .input-loto { width: 45px; padding: 8px; border-radius: 5px; border: none; text-align: center; font-weight: bold; margin: 2px; font-size: 16px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📊 Analyseur Loto Max (Base: Fiasco)</h1>
+        
+        <div id="compteur-data" style="margin-bottom: 20px; font-style: italic; color: #ffb703; font-size: 0.9em;">
+            Connexion au moteur de données...
+        </div>
 
         <div class="card" style="background: #3a5a40;">
             <h2>💎 Générer un Code "Fiasco-Optimisé"</h2>
@@ -27,10 +32,37 @@
             <button onclick="genererCode()" style="padding: 10px 20px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer</button>
             <div id="mon-code" style="margin-top: 15px;"></div>
         </div>
-        
+
         <div class="card">
             <h2>🔥 Numéros les plus fréquents (Total)</h2>
             <div id="statistiques" class="grid">Calcul des fréquences...</div>
+        </div>
+
+        <div class="card" style="background: #457b9d;">
+            <h2>🕵️ Traqueur de Numéro Individuel</h2>
+            <p><small>Sélectionnez un numéro pour voir toutes ses dates de sortie.</small></p>
+            <select id="select-traqueur" onchange="traquerNumero()" style="background: #1d3557; width: 100px;">
+                <option value="">N°</option>
+            </select>
+            <div id="resultat-traqueur" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.85em; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px;">
+                Choisissez un numéro pour analyser son historique.
+            </div>
+        </div>
+
+        <div class="card" style="background: #1d3557;">
+            <h2>🔍 Testeur de numéros fétiches</h2>
+            <p><small>Entrez 7 numéros pour voir s'ils sont déjà sortis depuis 2009.</small></p>
+            <div id="inputs-testeur" style="margin-bottom: 15px;">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+            </div>
+            <button onclick="testerMesNumeros()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold;">Vérifier mon record</button>
+            <div id="resultat-testeur" style="margin-top: 15px;"></div>
         </div>
 
         <div class="card">
@@ -54,20 +86,15 @@
         function genererCode() {
             const boulesChaudes = Array.from(document.querySelectorAll('.boule-chaude')).map(el => parseInt(el.innerText));
             let monCode = [];
-
-            // On pige 4 numéros parmi les "chauds" si disponibles
             let sourceChaude = [...boulesChaudes];
             while(monCode.length < 4 && sourceChaude.length > 0) {
                 let index = Math.floor(Math.random() * sourceChaude.length);
                 monCode.push(sourceChaude.splice(index, 1)[0]);
             }
-
-            // On complète à 7 avec du hasard pur
             while(monCode.length < 7) {
                 let n = Math.floor(Math.random() * 50) + 1;
                 if(!monCode.includes(n)) monCode.push(n);
             }
-
             monCode.sort((a, b) => a - b);
             const codeDiv = document.getElementById('mon-code');
             codeDiv.innerHTML = '';
@@ -82,7 +109,14 @@
                 const res = await fetch('/api/tirages');
                 const data = await res.json();
                 
-                // 1. Affichage des 10 derniers tirages
+                // Compteur de données
+                const compteurDiv = document.getElementById('compteur-data');
+                if (data.length > 0) {
+                    const dateDebut = data[data.length - 1].date_tirage;
+                    compteurDiv.innerHTML = `🚀 Analyse basée sur <strong>${data.length}</strong> tirages réels (depuis le ${dateDebut})`;
+                }
+
+                // Affichage des 10 derniers tirages
                 const resDiv = document.getElementById('resultats');
                 resDiv.innerHTML = '';
                 data.slice(0, 10).forEach(t => {
@@ -94,7 +128,7 @@
                     resDiv.appendChild(row);
                 });
 
-                // 2. Calcul des fréquences sur TOUTE la base
+                // Calcul des fréquences
                 const counts = {};
                 data.forEach(t => {
                     [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
@@ -109,7 +143,7 @@
                     statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
                 });
 
-                // 3. Remplissage automatique du menu des années
+                // Remplissage menu années
                 const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
                 const select = document.getElementById('select-annee');
                 select.innerHTML = '<option value="">Choisir une année</option>';
@@ -120,22 +154,66 @@
                     select.appendChild(opt);
                 });
 
+                // Remplissage menu traqueur (1-50)
+                const selectTraqueur = document.getElementById('select-traqueur');
+                if(selectTraqueur.options.length <= 1) {
+                    for(let i=1; i<=50; i++) {
+                        let opt = document.createElement('option');
+                        opt.value = i; opt.textContent = i;
+                        selectTraqueur.appendChild(opt);
+                    }
+                }
+
             } catch (err) {
                 document.getElementById('resultats').innerHTML = "Erreur de connexion à l'API.";
             }
         }
 
-        // FILTRE PAR ANNÉE
+        // TRAQUEUR DE NUMÉRO
+        async function traquerNumero() {
+            const numCherche = parseInt(document.getElementById('select-traqueur').value);
+            const resultDiv = document.getElementById('resultat-traqueur');
+            if (!numCherche) return;
+            
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(numCherche)).map(t => t.date_tirage);
+
+            resultDiv.innerHTML = `<strong>Le numéro ${numCherche} est sorti ${dates.length} fois :</strong><br>`;
+            resultDiv.innerHTML += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; margin-top:10px;">
+                ${dates.map(d => `<span style="background:#1d3557; padding:2px; border-radius:4px;">${d}</span>`).join('')}
+            </div>`;
+        }
+
+        // TESTEUR DE NUMÉROS FÉTICHES
+        async function testerMesNumeros() {
+            const inputs = document.querySelectorAll('.input-loto');
+            const mesNumeros = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
+            const resultDiv = document.getElementById('resultat-testeur');
+            if (mesNumeros.length !== 7) { resultDiv.innerHTML = "⚠️ Entrez 7 numéros."; return; }
+
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            let maxMatch = 0, dateMatch = "";
+
+            data.forEach(t => {
+                const draw = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7];
+                const match = mesNumeros.filter(n => draw.includes(n)).length;
+                if (match > maxMatch) { maxMatch = match; dateMatch = t.date_tirage; }
+            });
+
+            if (maxMatch >= 6) { resultDiv.innerHTML = `⭐ RECORD : ${maxMatch}/7 le ${dateMatch} !`; resultDiv.style.color = "#ffb703"; }
+            else if (maxMatch >= 4) { resultDiv.innerHTML = `✅ RECORD : ${maxMatch}/7 le ${dateMatch}.`; resultDiv.style.color = "#a8dadc"; }
+            else { resultDiv.innerHTML = `❌ RECORD : ${maxMatch}/7. Jamais sorti.`; resultDiv.style.color = "#ccc"; }
+        }
+
         async function changerAnnee() {
             const annee = document.getElementById('select-annee').value;
             if(!annee) return;
-
             const res = await fetch(`/api/tirages?year=${annee}`);
             const data = await res.json();
-            
             const div = document.getElementById('archive-resultats');
             div.innerHTML = '';
-
             data.forEach(t => {
                 const item = document.createElement('div');
                 item.className = 'archive-item';
@@ -148,7 +226,6 @@
             });
         }
 
-        // Lancement au chargement
         updateDashboard();
     </script>
 </body>
