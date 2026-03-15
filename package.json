@@ -1,0 +1,7 @@
+{
+  "name": "loto-quebec-stats",
+  "version": "1.0.0",
+  "devDependencies": {
+    "wrangler": "latest"
+  }
+}
