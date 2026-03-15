@@ -5,93 +5,122 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loto Analyse Québec - Fiasco Engine</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: white; text-align: center; }
-        .container { max-width: 800px; margin: auto; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding-bottom: 50px; }
+        .container { max-width: 900px; margin: auto; padding: 10px; }
         .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        
+        /* SYSTÈME D'ONGLETS */
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 20px; cursor: pointer; border-radius: 10px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; }
+        .tab-btn.active { background: #e63946; box-shadow: 0 0 10px #e63946; }
+        .tab-content { display: none; animation: fadeIn 0.4s; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* BOULES */
         .boule { display: inline-block; width: 35px; height: 35px; background: #e63946; color: white; border-radius: 50%; line-height: 35px; margin: 5px; font-weight: bold; border: 2px solid #fff; }
         .boule-chaude { background: #ffb703; color: #023047; }
+        .boule-froide { background: #a8dadc; color: #1d3557; }
         .boule-mini { display: inline-block; width: 25px; height: 25px; background: #e63946; border-radius: 50%; line-height: 25px; margin: 2px; font-size: 12px; font-weight: bold; border: 1px solid white; }
-        h2 { color: #a8dadc; }
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; }
-        select { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; font-size: 16px; cursor: pointer; }
-        .archive-item { border-bottom: 1px solid #444; padding: 10px; text-align: left; display: flex; align-items: center; justify-content: space-between; }
-        .input-loto { width: 45px; padding: 8px; border-radius: 5px; border: none; text-align: center; font-weight: bold; margin: 2px; font-size: 16px; }
+        
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+        select { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; }
+        .input-loto { width: 45px; padding: 8px; border-radius: 5px; border: none; text-align: center; font-weight: bold; margin: 2px; }
+        .archive-item { border-bottom: 1px solid #444; padding: 10px; display: flex; align-items: center; justify-content: space-between; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Analyseur Loto Max (Base: Fiasco)</h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.0</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 20px; font-style: italic; color: #ffb703; font-size: 0.9em;">
-            Connexion au moteur de données...
+            Analyse des 1 321 tirages...
         </div>
 
-        <div class="card" style="background: #3a5a40;">
-            <h2>💎 Générer un Code "Fiasco-Optimisé"</h2>
-            <p><small>Priorise les numéros les plus fréquents de l'histoire.</small></p>
-            <button onclick="genererCode()" style="padding: 10px 20px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer</button>
-            <div id="mon-code" style="margin-top: 15px;"></div>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="openTab('tab-gen')">💎 Générateur</button>
+            <button class="tab-btn" onclick="openTab('tab-stats')">🔥 Statistiques</button>
+            <button class="tab-btn" onclick="openTab('tab-check')">🔍 Testeur</button>
+            <button class="tab-btn" onclick="openTab('tab-hist')">📂 Archives</button>
         </div>
 
-        <div class="card">
-            <h2>🔥 Numéros les plus fréquents (Total)</h2>
-            <div id="statistiques" class="grid">Calcul des fréquences...</div>
-        </div>
-
-        <div class="card" style="background: #457b9d;">
-            <h2>🕵️ Traqueur de Numéro Individuel</h2>
-            <p><small>Sélectionnez un numéro pour voir toutes ses dates de sortie.</small></p>
-            <select id="select-traqueur" onchange="traquerNumero()" style="background: #1d3557; width: 100px;">
-                <option value="">N°</option>
-            </select>
-            <div id="resultat-traqueur" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.85em; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px;">
-                Choisissez un numéro pour analyser son historique.
+        <div id="tab-gen" class="tab-content active">
+            <div class="card" style="background: #3a5a40;">
+                <h2>Générateur Intelligent</h2>
+                <button onclick="genererCode()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer une combinaison</button>
+                <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
         </div>
 
-        <div class="card" style="background: #606c38;">
-            <h2>👯 Paires Magiques (Duo)</h2>
-            <p><small>Analyse quelles paires de numéros sortent le plus souvent ensemble.</small></p>
-            <button onclick="analyserPaires()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #283618; color: white; font-weight: bold;">Scanner les 1 321 tirages</button>
-            <div id="resultat-paires" class="grid" style="margin-top: 15px; font-size: 0.9em;">
-                Cliquez pour trouver les duos les plus fréquents.
+        <div id="tab-stats" class="tab-content">
+            <div class="card">
+                <h2>🔥 Numéros les plus fréquents</h2>
+                <div id="statistiques" class="grid"></div>
+            </div>
+
+            <div class="card" style="background: #1d3557;">
+                <h2>🧊 Numéros "En Retard" (Cold Numbers)</h2>
+                <p><small>Numéros qui ne sont pas sortis depuis le plus longtemps.</small></p>
+                <div id="retard-stats" class="grid">Calcul du temps de sommeil...</div>
+            </div>
+
+            <div class="card" style="background: #606c38;">
+                <h2>👯 Paires Magiques (Duos)</h2>
+                <button onclick="analyserPaires()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #283618; color: white; font-weight: bold;">Scanner les Duos</button>
+                <div id="resultat-paires" class="grid" style="margin-top: 15px;"></div>
             </div>
         </div>
 
-        <div class="card" style="background: #1d3557;">
-            <h2>🔍 Testeur de numéros fétiches</h2>
-            <p><small>Entrez 7 numéros pour voir s'ils sont déjà sortis depuis 2009.</small></p>
-            <div id="inputs-testeur" style="margin-bottom: 15px;">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+        <div id="tab-check" class="tab-content">
+            <div class="card" style="background: #457b9d;">
+                <h2>🕵️ Traqueur de Numéro</h2>
+                <select id="select-traqueur" onchange="traquerNumero()" style="background: #1d3557; color: white;">
+                    <option value="">Choisir un N°</option>
+                </select>
+                <div id="resultat-traqueur" style="margin-top: 15px; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px;"></div>
             </div>
-            <button onclick="testerMesNumeros()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold;">Vérifier mon record</button>
-            <div id="resultat-testeur" style="margin-top: 15px;"></div>
+
+            <div class="card" style="background: #1d3557;">
+                <h2>🔍 Testeur de record historique</h2>
+                <div id="inputs-testeur">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                </div>
+                <button onclick="testerMesNumeros()" style="margin-top:15px; padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold;">Vérifier mon gain</button>
+                <div id="resultat-testeur" style="margin-top: 15px;"></div>
+            </div>
         </div>
 
-        <div class="card">
-            <h2>📂 Archives Historiques (2009-2026)</h2>
-            <select id="select-annee" onchange="changerAnnee()">
-                <option value="">Chargement des années...</option>
-            </select>
-            <div id="archive-resultats" style="margin-top: 20px; max-height: 400px; overflow-y: auto;">
-                Choisissez une année pour voir l'historique.
+        <div id="tab-hist" class="tab-content">
+            <div class="card">
+                <h2>Archives (2009-2026)</h2>
+                <select id="select-annee" onchange="changerAnnee()">
+                    <option value="">Chargement...</option>
+                </select>
+                <div id="archive-resultats" style="margin-top: 20px; max-height: 500px; overflow-y: auto;"></div>
             </div>
-        </div>
-
-        <div class="card">
-            <h2>📅 10 Derniers Résultats</h2>
-            <div id="resultats">Chargement...</div>
+            <div class="card">
+                <h2>Derniers Tirages</h2>
+                <div id="resultats"></div>
+            </div>
         </div>
     </div>
 
     <script>
-        // GÉNÉRATEUR INTELLIGENT
+        // NAVIGATION
+        function openTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+        }
+
+        // GÉNÉRATEUR
         function genererCode() {
             const boulesChaudes = Array.from(document.querySelectorAll('.boule-chaude')).map(el => parseInt(el.innerText));
             let monCode = [];
@@ -107,88 +136,86 @@
             monCode.sort((a, b) => a - b);
             const codeDiv = document.getElementById('mon-code');
             codeDiv.innerHTML = '';
-            monCode.forEach(n => {
-                codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`;
-            });
+            monCode.forEach(n => { codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`; });
         }
 
-        // CHARGEMENT DES DONNÉES ET STATS
+        // DATA ENGINE
         async function updateDashboard() {
             try {
                 const res = await fetch('/api/tirages');
                 const data = await res.json();
                 
-                const compteurDiv = document.getElementById('compteur-data');
-                if (data.length > 0) {
-                    const dateDebut = data[data.length - 1].date_tirage;
-                    compteurDiv.innerHTML = `🚀 Analyse basée sur <strong>${data.length}</strong> tirages réels (depuis le ${dateDebut})`;
-                }
+                // 1. Compteur
+                const dateDebut = data[data.length - 1].date_tirage;
+                document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés (depuis le ${dateDebut})`;
 
+                // 2. Derniers tirages
                 const resDiv = document.getElementById('resultats');
                 resDiv.innerHTML = '';
-                data.slice(0, 10).forEach(t => {
-                    const row = document.createElement('div');
-                    row.innerHTML = `<p style="margin-bottom:5px;">Tirage du ${t.date_tirage}</p>`;
-                    [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
-                        row.innerHTML += `<span class="boule">${n}</span>`;
-                    });
-                    resDiv.appendChild(row);
+                data.slice(0, 5).forEach(t => {
+                    let html = `<p>Tirage du ${t.date_tirage}<br>`;
+                    [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => { html += `<span class="boule-mini">${n}</span>`; });
+                    resDiv.innerHTML += html + `</p>`;
                 });
 
+                // 3. Fréquence ET Retard
                 const counts = {};
-                data.forEach(t => {
-                    [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                const lastSeen = {}; // Pour le calcul du retard
+                
+                data.forEach((t, index) => {
+                    const tirageNums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7];
+                    tirageNums.forEach(n => {
                         counts[n] = (counts[n] || 0) + 1;
+                        if (lastSeen[n] === undefined) {
+                            lastSeen[n] = index; // index 0 = dernier tirage
+                        }
                     });
                 });
 
-                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                // Affichage Chauds
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
                 const statDiv = document.getElementById('statistiques');
                 statDiv.innerHTML = '';
-                sorted.slice(0, 10).forEach(([num, count]) => {
+                sorted.forEach(([num, count]) => {
                     statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
                 });
 
-                const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
-                const select = document.getElementById('select-annee');
-                select.innerHTML = '<option value="">Choisir une année</option>';
-                annees.forEach(an => {
-                    const opt = document.createElement('option');
-                    opt.value = an; opt.textContent = an;
-                    select.appendChild(opt);
+                // Affichage Retard (Froids)
+                const sortedRetard = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                const retardDiv = document.getElementById('retard-stats');
+                retardDiv.innerHTML = '';
+                sortedRetard.forEach(([num, wait]) => {
+                    retardDiv.innerHTML += `<div><span class="boule boule-froide">${num}</span><br><small>Dort depuis<br><strong>${wait}</strong> tirages</small></div>`;
                 });
 
-                const selectTraqueur = document.getElementById('select-traqueur');
-                if(selectTraqueur.options.length <= 1) {
-                    for(let i=1; i<=50; i++) {
-                        let opt = document.createElement('option');
-                        opt.value = i; opt.textContent = i;
-                        selectTraqueur.appendChild(opt);
-                    }
+                // Menus
+                const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
+                const selectAn = document.getElementById('select-annee');
+                selectAn.innerHTML = '<option value="">Choisir année</option>';
+                annees.forEach(an => { selectAn.innerHTML += `<option value="${an}">${an}</option>`; });
+
+                const selectTr = document.getElementById('select-traqueur');
+                if(selectTr.options.length <= 1) {
+                    for(let i=1; i<=50; i++) { selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
                 }
-            } catch (err) {
-                document.getElementById('resultats').innerHTML = "Erreur de connexion à l'API.";
-            }
+
+            } catch (err) { console.error(err); }
         }
 
-        // TRAQUEUR DE NUMÉRO
+        // FONCTIONS ANNEXES
         async function traquerNumero() {
-            const numCherche = parseInt(document.getElementById('select-traqueur').value);
-            const resultDiv = document.getElementById('resultat-traqueur');
-            if (!numCherche) return;
+            const num = parseInt(document.getElementById('select-traqueur').value);
+            if (!num) return;
             const res = await fetch('/api/tirages');
             const data = await res.json();
-            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(numCherche)).map(t => t.date_tirage);
-            resultDiv.innerHTML = `<strong>Le numéro ${numCherche} est sorti ${dates.length} fois :</strong><br>`;
-            resultDiv.innerHTML += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; margin-top:10px;">
-                ${dates.map(d => `<span style="background:#1d3557; padding:2px; border-radius:4px;">${d}</span>`).join('')}
-            </div>`;
+            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(num)).map(t => t.date_tirage);
+            document.getElementById('resultat-traqueur').innerHTML = `<strong>N° ${num} (${dates.length} fois) :</strong><br>` + 
+                `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:5px;margin-top:10px;">${dates.map(d => `<span style="background:#1d3557;padding:2px;border-radius:4px;font-size:11px;">${d}</span>`).join('')}</div>`;
         }
 
-        // ANALYSEUR DE PAIRES
         async function analyserPaires() {
             const resultDiv = document.getElementById('resultat-paires');
-            resultDiv.innerHTML = "Analyse des duos en cours...";
+            resultDiv.innerHTML = "Calcul...";
             const res = await fetch('/api/tirages');
             const data = await res.json();
             const pairesCount = {};
@@ -201,52 +228,38 @@
                     }
                 }
             });
-            const sortedPaires = Object.entries(pairesCount).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            const sorted = Object.entries(pairesCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
             resultDiv.innerHTML = '';
-            sortedPaires.forEach(([paire, count]) => {
+            sorted.forEach(([paire, count]) => {
                 const [n1, n2] = paire.split('-');
-                const item = document.createElement('div');
-                item.style = "margin: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid #fefae0;";
-                item.innerHTML = `<span class="boule-mini" style="background:#fefae0; color:#283618;">${n1}</span><span class="boule-mini" style="background:#fefae0; color:#283618;">${n2}</span><br><small>${count} fois</small>`;
-                resultDiv.appendChild(item);
+                resultDiv.innerHTML += `<div style="padding:10px;background:rgba(0,0,0,0.2);border-radius:10px;"><span class="boule-mini">${n1}</span><span class="boule-mini">${n2}</span><br><small>${count} fois</small></div>`;
             });
         }
 
-        // TESTEUR DE NUMÉROS FÉTICHES
         async function testerMesNumeros() {
             const inputs = document.querySelectorAll('.input-loto');
             const mesNumeros = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
-            const resultDiv = document.getElementById('resultat-testeur');
-            if (mesNumeros.length !== 7) { resultDiv.innerHTML = "⚠️ Entrez 7 numéros."; return; }
+            if (mesNumeros.length !== 7) { alert("Entrez 7 numéros."); return; }
             const res = await fetch('/api/tirages');
             const data = await res.json();
             let maxMatch = 0, dateMatch = "";
             data.forEach(t => {
-                const draw = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7];
-                const match = mesNumeros.filter(n => draw.includes(n)).length;
+                const match = mesNumeros.filter(n => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(n)).length;
                 if (match > maxMatch) { maxMatch = match; dateMatch = t.date_tirage; }
             });
-            if (maxMatch >= 6) { resultDiv.innerHTML = `⭐ RECORD : ${maxMatch}/7 le ${dateMatch} !`; resultDiv.style.color = "#ffb703"; }
-            else if (maxMatch >= 4) { resultDiv.innerHTML = `✅ RECORD : ${maxMatch}/7 le ${dateMatch}.`; resultDiv.style.color = "#a8dadc"; }
-            else { resultDiv.innerHTML = `❌ RECORD : ${maxMatch}/7. Jamais sorti.`; resultDiv.style.color = "#ccc"; }
+            document.getElementById('resultat-testeur').innerHTML = `⭐ Record : ${maxMatch}/7 le ${dateMatch}`;
         }
 
         async function changerAnnee() {
             const annee = document.getElementById('select-annee').value;
-            if(!annee) return;
             const res = await fetch(`/api/tirages?year=${annee}`);
             const data = await res.json();
             const div = document.getElementById('archive-resultats');
             div.innerHTML = '';
             data.forEach(t => {
-                const item = document.createElement('div');
-                item.className = 'archive-item';
-                let boulesHtml = '';
-                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
-                    boulesHtml += `<span class="boule-mini">${n}</span>`;
-                });
-                item.innerHTML = `<span><strong>${t.date_tirage}</strong></span> <div>${boulesHtml}</div>`;
-                div.appendChild(item);
+                let boules = '';
+                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => { boules += `<span class="boule-mini">${n}</span>`; });
+                div.innerHTML += `<div class="archive-item"><strong>${t.date_tirage}</strong> <div>${boules}</div></div>`;
             });
         }
 
