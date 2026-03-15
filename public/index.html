@@ -2,34 +2,71 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Analyse Loto Max Québec</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loto Analyse Québec - Fiasco Engine</title>
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
-        .boule { display: inline-block; width: 40px; height: 40px; background: #ed1c24; 
-                 color: white; border-radius: 50%; line-height: 40px; margin: 5px; font-weight: bold; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: white; text-align: center; }
+        .container { max-width: 800px; margin: auto; padding: 20px; }
+        .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .boule { display: inline-block; width: 35px; height: 35px; background: #e63946; color: white; border-radius: 50%; line-height: 35px; margin: 5px; font-weight: bold; border: 2px solid #fff; }
+        .boule-chaude { background: #ffb703; color: #023047; }
+        h2 { color: #a8dadc; }
+        .grid { display: flex; flex-wrap: wrap; justify-content: center; }
     </style>
 </head>
 <body>
-    <h1>Derniers Tirages Loto Max</h1>
-    <div id="resultats">Chargement des probabilités...</div>
+    <div class="container">
+        <h1>📊 Analyseur Loto Max (Base: Fiasco)</h1>
+        
+        <div class="card">
+            <h2>🔥 Numéros les plus fréquents</h2>
+            <div id="statistiques" class="grid">Calcul des fréquences...</div>
+        </div>
+
+        <div class="card">
+            <h2>📅 Derniers Résultats</h2>
+            <div id="resultats">Chargement...</div>
+        </div>
+    </div>
 
     <script>
-        async function chargerTirages() {
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-            const div = document.getElementById('resultats');
-            div.innerHTML = '';
-
-            data.forEach(t => {
-                const tirageDiv = document.createElement('div');
-                tirageDiv.innerHTML = `<h3>Tirage du ${t.date_tirage}</h3>`;
-                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
-                    tirageDiv.innerHTML += `<span class="boule">${n}</span>`;
+        async function updateDashboard() {
+            try {
+                const res = await fetch('/api/tirages');
+                const data = await res.json();
+                
+                // 1. Affichage des derniers tirages
+                const resDiv = document.getElementById('resultats');
+                resDiv.innerHTML = '';
+                data.forEach(t => {
+                    const row = document.createElement('div');
+                    row.innerHTML = `<p>Tirage du ${t.date_tirage}</p>`;
+                    [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                        row.innerHTML += `<span class="boule">${n}</span>`;
+                    });
+                    resDiv.appendChild(row);
                 });
-                div.appendChild(tirageDiv);
-            });
+
+                // 2. Logique pour calculer les fréquences en direct (Front-end)
+                const counts = {};
+                data.forEach(t => {
+                    [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                        counts[n] = (counts[n] || 0) + 1;
+                    });
+                });
+
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+                const statDiv = document.getElementById('statistiques');
+                statDiv.innerHTML = '';
+                sorted.slice(0, 7).forEach(([num, count]) => {
+                    statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
+                });
+
+            } catch (err) {
+                document.getElementById('resultats').innerHTML = "Erreur de connexion à l'API.";
+            }
         }
-        chargerTirages();
+        updateDashboard();
     </script>
 </body>
 </html>
