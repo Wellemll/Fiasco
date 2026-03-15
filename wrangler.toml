@@ -4,4 +4,4 @@ pages_build_output_dir = "./public"
 [[d1_databases]]
 binding = "DB"
 database_name = "loto_db"
-database_id = "TON_DATABASE_ID_ICI"
+database_id = "b58b1bfd-80b5-4911-b212-76094395871c"
