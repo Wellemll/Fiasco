@@ -11,13 +11,16 @@ export async function onRequest(context) {
         params.push(`${year}%`);
     }
 
-    // On ajoute LIMIT 500 pour être sûr de récupérer plusieurs années d'un coup
-    query += "ORDER BY date_tirage DESC LIMIT 500"; 
+    // On met LIMIT 2000 pour couvrir de 2009 à 2026 sans problème
+    query += "ORDER BY date_tirage DESC LIMIT 2000"; 
 
     try {
         const { results } = await DB.prepare(query).bind(...params).all();
         return new Response(JSON.stringify(results), {
-            headers: { "Content-Type": "application/json" }
+            headers: { 
+                "Content-Type": "application/json",
+                "Cache-Control": "no-cache" // Force le navigateur à ne pas garder de vieux résultats
+            }
         });
     } catch (e) {
         return new Response(JSON.stringify({ error: e.message }), { status: 500 });
