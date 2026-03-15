@@ -1,6 +1,6 @@
 export async function onRequest(context) {
     // On récupère la liaison vers la base de données définie dans wrangler.toml
-    const { DB } = context.env;
+    const { DB } = context.env.fiasco;
 
     // Requête pour avoir les 10 derniers tirages
     const { results } = await DB.prepare(
