@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Analyse Loto Max Québec</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f4f4f4; }
+        .boule { display: inline-block; width: 40px; height: 40px; background: #ed1c24; 
+                 color: white; border-radius: 50%; line-height: 40px; margin: 5px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <h1>Derniers Tirages Loto Max</h1>
+    <div id="resultats">Chargement des probabilités...</div>
+
+    <script>
+        async function chargerTirages() {
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const div = document.getElementById('resultats');
+            div.innerHTML = '';
+
+            data.forEach(t => {
+                const tirageDiv = document.createElement('div');
+                tirageDiv.innerHTML = `<h3>Tirage du ${t.date_tirage}</h3>`;
+                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                    tirageDiv.innerHTML += `<span class="boule">${n}</span>`;
+                });
+                div.appendChild(tirageDiv);
+            });
+        }
+        chargerTirages();
+    </script>
+</body>
+</html>
