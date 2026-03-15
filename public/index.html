@@ -49,6 +49,15 @@
             </div>
         </div>
 
+        <div class="card" style="background: #606c38;">
+            <h2>👯 Paires Magiques (Duo)</h2>
+            <p><small>Analyse quelles paires de numéros sortent le plus souvent ensemble.</small></p>
+            <button onclick="analyserPaires()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #283618; color: white; font-weight: bold;">Scanner les 1 321 tirages</button>
+            <div id="resultat-paires" class="grid" style="margin-top: 15px; font-size: 0.9em;">
+                Cliquez pour trouver les duos les plus fréquents.
+            </div>
+        </div>
+
         <div class="card" style="background: #1d3557;">
             <h2>🔍 Testeur de numéros fétiches</h2>
             <p><small>Entrez 7 numéros pour voir s'ils sont déjà sortis depuis 2009.</small></p>
@@ -109,14 +118,12 @@
                 const res = await fetch('/api/tirages');
                 const data = await res.json();
                 
-                // Compteur de données
                 const compteurDiv = document.getElementById('compteur-data');
                 if (data.length > 0) {
                     const dateDebut = data[data.length - 1].date_tirage;
                     compteurDiv.innerHTML = `🚀 Analyse basée sur <strong>${data.length}</strong> tirages réels (depuis le ${dateDebut})`;
                 }
 
-                // Affichage des 10 derniers tirages
                 const resDiv = document.getElementById('resultats');
                 resDiv.innerHTML = '';
                 data.slice(0, 10).forEach(t => {
@@ -128,7 +135,6 @@
                     resDiv.appendChild(row);
                 });
 
-                // Calcul des fréquences
                 const counts = {};
                 data.forEach(t => {
                     [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
@@ -143,18 +149,15 @@
                     statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
                 });
 
-                // Remplissage menu années
                 const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
                 const select = document.getElementById('select-annee');
                 select.innerHTML = '<option value="">Choisir une année</option>';
                 annees.forEach(an => {
                     const opt = document.createElement('option');
-                    opt.value = an;
-                    opt.textContent = an;
+                    opt.value = an; opt.textContent = an;
                     select.appendChild(opt);
                 });
 
-                // Remplissage menu traqueur (1-50)
                 const selectTraqueur = document.getElementById('select-traqueur');
                 if(selectTraqueur.options.length <= 1) {
                     for(let i=1; i<=50; i++) {
@@ -163,7 +166,6 @@
                         selectTraqueur.appendChild(opt);
                     }
                 }
-
             } catch (err) {
                 document.getElementById('resultats').innerHTML = "Erreur de connexion à l'API.";
             }
@@ -174,15 +176,40 @@
             const numCherche = parseInt(document.getElementById('select-traqueur').value);
             const resultDiv = document.getElementById('resultat-traqueur');
             if (!numCherche) return;
-            
             const res = await fetch('/api/tirages');
             const data = await res.json();
             const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(numCherche)).map(t => t.date_tirage);
-
             resultDiv.innerHTML = `<strong>Le numéro ${numCherche} est sorti ${dates.length} fois :</strong><br>`;
             resultDiv.innerHTML += `<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 5px; margin-top:10px;">
                 ${dates.map(d => `<span style="background:#1d3557; padding:2px; border-radius:4px;">${d}</span>`).join('')}
             </div>`;
+        }
+
+        // ANALYSEUR DE PAIRES
+        async function analyserPaires() {
+            const resultDiv = document.getElementById('resultat-paires');
+            resultDiv.innerHTML = "Analyse des duos en cours...";
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const pairesCount = {};
+            data.forEach(t => {
+                const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a, b) => a - b);
+                for (let i = 0; i < nums.length; i++) {
+                    for (let j = i + 1; j < nums.length; j++) {
+                        const paire = `${nums[i]}-${nums[j]}`;
+                        pairesCount[paire] = (pairesCount[paire] || 0) + 1;
+                    }
+                }
+            });
+            const sortedPaires = Object.entries(pairesCount).sort((a, b) => b[1] - a[1]).slice(0, 12);
+            resultDiv.innerHTML = '';
+            sortedPaires.forEach(([paire, count]) => {
+                const [n1, n2] = paire.split('-');
+                const item = document.createElement('div');
+                item.style = "margin: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid #fefae0;";
+                item.innerHTML = `<span class="boule-mini" style="background:#fefae0; color:#283618;">${n1}</span><span class="boule-mini" style="background:#fefae0; color:#283618;">${n2}</span><br><small>${count} fois</small>`;
+                resultDiv.appendChild(item);
+            });
         }
 
         // TESTEUR DE NUMÉROS FÉTICHES
@@ -191,17 +218,14 @@
             const mesNumeros = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
             const resultDiv = document.getElementById('resultat-testeur');
             if (mesNumeros.length !== 7) { resultDiv.innerHTML = "⚠️ Entrez 7 numéros."; return; }
-
             const res = await fetch('/api/tirages');
             const data = await res.json();
             let maxMatch = 0, dateMatch = "";
-
             data.forEach(t => {
                 const draw = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7];
                 const match = mesNumeros.filter(n => draw.includes(n)).length;
                 if (match > maxMatch) { maxMatch = match; dateMatch = t.date_tirage; }
             });
-
             if (maxMatch >= 6) { resultDiv.innerHTML = `⭐ RECORD : ${maxMatch}/7 le ${dateMatch} !`; resultDiv.style.color = "#ffb703"; }
             else if (maxMatch >= 4) { resultDiv.innerHTML = `✅ RECORD : ${maxMatch}/7 le ${dateMatch}.`; resultDiv.style.color = "#a8dadc"; }
             else { resultDiv.innerHTML = `❌ RECORD : ${maxMatch}/7. Jamais sorti.`; resultDiv.style.color = "#ccc"; }
