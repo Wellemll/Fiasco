@@ -1,13 +1,23 @@
 export async function onRequest(context) {
-    // On récupère la liaison vers la base de données définie dans wrangler.toml
-    const { DB } = context.env.fiasco;
+    const { DB } = context.env;
 
-    // Requête pour avoir les 10 derniers tirages
-    const { results } = await DB.prepare(
-        "SELECT * FROM tirages ORDER BY date_tirage DESC LIMIT 10"
-    ).all();
+    // Vérification de sécurité
+    if (!DB) {
+        return new Response(JSON.stringify({ error: "La liaison DB est manquante dans les réglages Cloudflare." }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
 
-    return new Response(JSON.stringify(results), {
-        headers: { "Content-Type": "application/json" }
-    });
+    try {
+        const { results } = await DB.prepare("SELECT * FROM tirages ORDER BY date_tirage DESC LIMIT 10").all();
+        return new Response(JSON.stringify(results), {
+            headers: { "Content-Type": "application/json" }
+        });
+    } catch (e) {
+        return new Response(JSON.stringify({ error: e.message }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" }
+        });
+    }
 }
