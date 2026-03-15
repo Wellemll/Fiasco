@@ -1,2 +1,0 @@
-# Fiasco
-Calculateur de probabilités
