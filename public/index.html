@@ -7,75 +7,73 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #1a1a1a; color: white; text-align: center; margin: 0; padding-bottom: 50px; }
         .container { max-width: 900px; margin: auto; padding: 10px; }
-        .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+        .card { background: #2d2d2d; padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        /* SYSTÈME D'ONGLETS */
-        .tabs { display: flex; justify(content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 20px; cursor: pointer; border-radius: 10px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; }
+        /* SYSTÈME D'ONGLETS FIXÉ */
+        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; position: sticky; top: 0; background: #1a1a1a; padding: 10px 0; z-index: 100; }
+        .tab-btn { padding: 10px 15px; cursor: pointer; border-radius: 8px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; font-size: 0.9em; }
         .tab-btn.active { background: #e63946; box-shadow: 0 0 10px #e63946; }
-        .tab-content { display: none; animation: fadeIn 0.4s; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* BOULES */
-        .boule { display: inline-block; width: 35px; height: 35px; background: #e63946; color: white; border-radius: 50%; line-height: 35px; margin: 5px; font-weight: bold; border: 2px solid #fff; }
-        .boule-chaude { background: #ffb703; color: #023047; }
-        .boule-froide { background: #a8dadc; color: #1d3557; }
-        .boule-mini { display: inline-block; width: 25px; height: 25px; background: #e63946; border-radius: 50%; line-height: 25px; margin: 2px; font-size: 12px; font-weight: bold; border: 1px solid white; }
         
-        .grid { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-        select { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; cursor: pointer; }
-        .input-loto { width: 45px; padding: 8px; border-radius: 5px; border: none; text-align: center; font-weight: bold; margin: 2px; }
-        .archive-item { border-bottom: 1px solid #444; padding: 10px; display: flex; align-items: center; justify-content: space-between; }
-        .stat-highlight { font-size: 1.5em; font-weight: bold; color: #ffb703; }
+        /* Cache les contenus non actifs par défaut */
+        .tab-content { display: none; animation: fadeIn 0.3s; }
+        .tab-content.active { display: block; }
+
+        /* BOULES COMPACTES */
+        .boule { display: inline-block; width: 30px; height: 30px; background: #e63946; color: white; border-radius: 50%; line-height: 30px; margin: 3px; font-weight: bold; border: 1px solid #fff; font-size: 0.85em; }
+        .boule-chaude { background: #ffb703; color: #023047; }
+        .boule-mini { display: inline-block; width: 22px; height: 22px; background: #e63946; border-radius: 50%; line-height: 22px; margin: 1px; font-size: 10px; font-weight: bold; border: 1px solid white; }
+        
+        /* GRILLE ULTRA COMPACTE POUR LES RETARDS */
+        .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 5px; justify-items: center; }
+        .stat-item { background: rgba(255,255,255,0.05); padding: 5px; border-radius: 8px; width: 100%; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        select, input { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; margin: 5px; }
+        .input-loto { width: 40px; text-align: center; font-weight: bold; }
+        .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9em; }
+        .stat-highlight { font-size: 1.4em; font-weight: bold; color: #ffb703; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.8 Deep Scan</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v2.9 Compact</small></h1>
         
-        <div id="compteur-data" style="margin-bottom: 20px; font-style: italic; color: #ffb703; font-size: 0.9em;">
-            Analyse des données en cours...
-        </div>
+        <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement...</div>
 
         <div class="tabs">
-            <button class="tab-btn active" onclick="openTab('tab-gen')">💎 Générateur Pro</button>
-            <button class="tab-btn" onclick="openTab('tab-stats')">🔥 Statistiques</button>
-            <button class="tab-btn" onclick="openTab('tab-check')">🔍 Testeur</button>
-            <button class="tab-btn" onclick="openTab('tab-hist')">📂 Archives</button>
+            <button class="tab-btn active" onclick="openTab(event, 'tab-gen')">💎 Générer</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-stats')">🔥 Stats</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-check')">🔍 Tester</button>
+            <button class="tab-btn" onclick="openTab(event, 'tab-hist')">📂 Archives</button>
         </div>
 
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
-                <h2>Générateur Intelligent Automatique</h2>
-                <p><small>Optimisé : 3 Chauds + 2 Retards + 2 Hasard | Max 1 suite</small></p>
-                <button onclick="genererCode()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer</button>
+                <h3>Générateur Pro</h3>
+                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Lancer le scan</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
         </div>
 
         <div id="tab-stats" class="tab-content">
             <div class="card">
-                <h2>🔥 Numéros les plus fréquents</h2>
-                <div id="statistiques" class="grid"></div>
+                <h4>🔥 Top Fréquence</h4>
+                <div id="statistiques" class="grid-compact"></div>
             </div>
 
             <div class="card" style="background: #1d3557;">
-                <h2>🧊 Analyse Complète des Retards (1-50)</h2>
-                <p><small>Classés du plus froid au plus récent (nb de tirages écoulés).</small></p>
-                <div id="retard-stats" class="grid" style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;">
-                </div>
+                <h4>🧊 Retards (1 à 50)</h4>
+                <div id="retard-stats" class="grid-compact" style="max-height: 350px; overflow-y: auto;"></div>
             </div>
 
-            <div class="grid">
-                <div class="card" style="background: #bc6c25; flex: 1; min-width: 250px;">
-                    <h2>⚖️ Somme Magique</h2>
+            <div style="display: flex; gap: 10px;">
+                <div class="card" style="background: #bc6c25; flex: 1;">
+                    <small>Somme Magique</small>
                     <div id="resultat-somme" class="stat-highlight">-</div>
-                    <div id="zone-somme" style="font-size: 0.8em; margin-top:5px; color: #fefae0;"></div>
                 </div>
-
-                <div class="card" style="background: #283618; flex: 1; min-width: 250px;">
-                    <h2>🔗 Fréquence des Suites</h2>
+                <div class="card" style="background: #283618; flex: 1;">
+                    <small>Suites</small>
                     <div id="resultat-suites" class="stat-highlight">-</div>
                 </div>
             </div>
@@ -83,15 +81,12 @@
 
         <div id="tab-check" class="tab-content">
             <div class="card" style="background: #457b9d;">
-                <h2>🕵️ Traqueur de Numéro</h2>
-                <select id="select-traqueur" onchange="traquerNumero()" style="background: #1d3557; color: white;">
-                    <option value="">Choisir un N°</option>
-                </select>
-                <div id="resultat-traqueur" style="margin-top: 15px; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px;"></div>
+                <h4>🕵️ Traqueur</h4>
+                <select id="select-traqueur" onchange="traquerNumero()"><option value="">N°</option></select>
+                <div id="resultat-traqueur" style="margin-top: 10px; font-size: 0.8em; max-height: 100px; overflow-y: auto;"></div>
             </div>
-
             <div class="card" style="background: #1d3557;">
-                <h2>🔍 Testeur de numéros fétiches</h2>
+                <h4>🔍 Testeur fétiche</h4>
                 <div id="inputs-testeur">
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
@@ -101,126 +96,50 @@
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
                 </div>
-                <button onclick="testerMesNumeros()" style="margin-top:15px; padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #e63946; color: white; font-weight: bold;">Analyser ma combinaison</button>
-                <div id="resultat-testeur" style="margin-top: 15px;"></div>
+                <button onclick="testerMesNumeros()" style="margin-top:10px; background: #e63946; color: white; border: none; padding: 10px; border-radius: 5px;">Analyser</button>
+                <div id="resultat-testeur" style="margin-top: 10px;"></div>
             </div>
         </div>
 
         <div id="tab-hist" class="tab-content">
             <div class="card">
-                <h2>Archives Historiques</h2>
-                <select id="select-annee" onchange="changerAnnee()">
-                    <option value="">Chargement...</option>
-                </select>
-                <div id="archive-resultats" style="margin-top: 20px; max-height: 500px; overflow-y: auto;"></div>
+                <h4>📂 Archives</h4>
+                <select id="select-annee" onchange="changerAnnee()"></select>
+                <div id="archive-resultats" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // VARIABLE GLOBALE POUR L'AUTOMATISATION
         let moyenneOptimale = 176;
 
-        function openTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            event.currentTarget.classList.add('active');
-        }
-
-        async function genererCode() {
-            const codeDiv = document.getElementById('mon-code');
-            codeDiv.innerHTML = 'Scan des probabilités...';
-
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-
-            const counts = {};
-            const lastSeen = {};
-            data.forEach((t, index) => {
-                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
-                    counts[n] = (counts[n] || 0) + 1;
-                    if (lastSeen[n] === undefined) lastSeen[n] = index;
-                });
-            });
-
-            const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
-            const enRetard = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
-
-            let monCode = [];
-            let tentative = 0;
-            let combinaisonValide = false;
-
-            const borneBasse = moyenneOptimale - 30;
-            const borneHaute = moyenneOptimale + 30;
-
-            while (!combinaisonValide && tentative < 500) {
-                monCode = [];
-                tentative++;
-
-                let sourceChauds = [...chauds];
-                for(let i=0; i<3; i++) {
-                    let idx = Math.floor(Math.random() * sourceChauds.length);
-                    monCode.push(sourceChauds.splice(idx, 1)[0]);
-                }
-                let sourceRetard = [...enRetard].filter(n => !monCode.includes(n));
-                for(let i=0; i<2; i++) {
-                    if(sourceRetard.length > 0) {
-                        let idx = Math.floor(Math.random() * sourceRetard.length);
-                        monCode.push(sourceRetard.splice(idx, 1)[0]);
-                    }
-                }
-                while(monCode.length < 7) {
-                    let n = Math.floor(Math.random() * 50) + 1;
-                    if(!monCode.includes(n)) monCode.push(n);
-                }
-
-                monCode.sort((a, b) => a - b);
-
-                const somme = monCode.reduce((a, b) => a + b, 0);
-                const sommeOk = (somme >= borneBasse && somme <= borneHaute);
-
-                let nbSuites = 0;
-                let suiteLongue = false;
-                for (let i = 0; i < monCode.length - 1; i++) {
-                    if (monCode[i+1] === monCode[i] + 1) {
-                        nbSuites++;
-                        if (i < monCode.length - 2 && monCode[i+2] === monCode[i] + 2) suiteLongue = true;
-                    }
-                }
-
-                if (sommeOk && !suiteLongue && nbSuites <= 1) combinaisonValide = true;
-            }
-
-            codeDiv.innerHTML = '';
-            monCode.forEach(n => {
-                codeDiv.innerHTML += `<span class="boule" style="background: #588157">${n}</span>`;
-            });
-            codeDiv.innerHTML += `<br><small style="color:#a3b18a;">Essais: ${tentative} | Somme: ${monCode.reduce((a,b)=>a+b,0)} | Zone: ${Math.round(borneBasse)}-${Math.round(borneHaute)}</small>`;
+        // RÉPARATION DES ONGLETS
+        function openTab(evt, tabId) {
+            const contents = document.getElementsByClassName("tab-content");
+            for (let i = 0; i < contents.length; i++) { contents[i].style.display = "none"; }
+            
+            const buttons = document.getElementsByClassName("tab-btn");
+            for (let i = 0; i < buttons.length; i++) { buttons[i].className = buttons[i].className.replace(" active", ""); }
+            
+            document.getElementById(tabId).style.display = "block";
+            evt.currentTarget.className += " active";
         }
 
         async function updateDashboard() {
             try {
                 const res = await fetch('/api/tirages');
                 const data = await res.json();
-                
                 document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés`;
 
-                const counts = {};
-                const lastSeen = {};
-                let totalSommes = 0;
-                let tiragesAvecSuites = 0;
+                const counts = {}, lastSeen = {};
+                let totalSommes = 0, tiragesAvecSuites = 0;
 
                 data.forEach((t, index) => {
                     const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a, b) => a - b);
                     totalSommes += nums.reduce((a, b) => a + b, 0);
-
-                    let aUneSuite = false;
-                    for (let i = 0; i < nums.length - 1; i++) {
-                        if (nums[i+1] === nums[i] + 1) aUneSuite = true;
-                    }
-                    if (aUneSuite) tiragesAvecSuites++;
-
+                    let hasSuite = false;
+                    for (let i = 0; i < 6; i++) { if (nums[i+1] === nums[i] + 1) hasSuite = true; }
+                    if (hasSuite) tiragesAvecSuites++;
                     nums.forEach(n => {
                         counts[n] = (counts[n] || 0) + 1;
                         if (lastSeen[n] === undefined) lastSeen[n] = index;
@@ -229,93 +148,89 @@
 
                 moyenneOptimale = Math.round(totalSommes / data.length);
                 document.getElementById('resultat-somme').innerText = moyenneOptimale;
-                document.getElementById('zone-somme').innerText = `Zone d'Or : ${moyenneOptimale - 30} à ${moyenneOptimale + 30}`;
-                document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(1)}%`;
+                document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(0)}%`;
 
-                const sortedChauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                // AFFICHAGE FREQUENCE COMPACT
+                const sortedChauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
                 const statDiv = document.getElementById('statistiques');
                 statDiv.innerHTML = '';
                 sortedChauds.forEach(([num, count]) => {
-                    statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
+                    statDiv.innerHTML += `<div class="stat-item"><span class="boule boule-chaude">${num}</span><br><small>${count}</small></div>`;
                 });
 
-                // SCAN COMPLET DES RETARDS (1-50)
-                const tousLesNumeros = [];
-                for (let i = 1; i <= 50; i++) {
-                    tousLesNumeros.push([i, lastSeen[i] !== undefined ? lastSeen[i] : "Jms"]);
-                }
-                const sortedRetard = tousLesNumeros.sort((a, b) => {
-                    if (a[1] === "Jms") return -1;
-                    if (b[1] === "Jms") return 1;
-                    return b[1] - a[1];
-                });
-
+                // AFFICHAGE RETARDS COMPACT (1-50)
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
-                sortedRetard.forEach(([num, wait]) => {
-                    let couleurStyle = "background: #a8dadc; color: #1d3557;";
-                    if (wait > 20) couleurStyle = "background: #457b9d; color: white; border: 2px solid white;";
-                    retardDiv.innerHTML += `<div style="margin: 5px; min-width: 65px;"><span class="boule" style="${couleurStyle}">${num}</span><br><small><strong>${wait}</strong> tir.</small></div>`;
+                const retardsArray = [];
+                for (let i = 1; i <= 50; i++) { retardsArray.push([i, lastSeen[i] || 0]); }
+                retardsArray.sort((a, b) => b[1] - a[1]).forEach(([num, wait]) => {
+                    let style = wait > 20 ? "background:#457b9d; border:1px solid white;" : "background:#a8dadc; color:#1d3557;";
+                    retardDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${num}</span><br><small>${wait}t.</small></div>`;
                 });
 
-                const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
+                // Remplissage menus
                 const selectAn = document.getElementById('select-annee');
-                selectAn.innerHTML = '<option value="">Choisir année</option>';
-                annees.forEach(an => { selectAn.innerHTML += `<option value="${an}">${an}</option>`; });
-
+                const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
+                selectAn.innerHTML = annees.map(a => `<option value="${a}">${a}</option>`).join('');
+                
                 const selectTr = document.getElementById('select-traqueur');
-                if(selectTr.options.length <= 1) {
-                    for(let i=1; i<=50; i++) { selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
-                }
+                for(let i=1; i<=50; i++) { selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
 
-            } catch (err) { console.error(err); }
+            } catch (e) { console.error(e); }
         }
 
-        async function traquerNumero() {
-            const num = parseInt(document.getElementById('select-traqueur').value);
-            if (!num) return;
+        async function genererCode() {
+            const codeDiv = document.getElementById('mon-code');
+            codeDiv.innerHTML = 'Scan...';
             const res = await fetch('/api/tirages');
             const data = await res.json();
-            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(num)).map(t => t.date_tirage);
-            document.getElementById('resultat-traqueur').innerHTML = `<strong>Sorties : ${dates.length}</strong><br>` + 
-                `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:5px;margin-top:10px;">${dates.map(d => `<span style="background:#1d3557;padding:2px;border-radius:4px;font-size:11px;">${d}</span>`).join('')}</div>`;
-        }
-
-        async function testerMesNumeros() {
-            const inputs = document.querySelectorAll('.input-loto');
-            const mesNumeros = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
-            const resultDiv = document.getElementById('resultat-testeur');
-            if (mesNumeros.length !== 7) { alert("Entrez 7 numéros."); return; }
             
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-            let maxMatch = 0, dateMatch = "";
-            data.forEach(t => {
-                const match = mesNumeros.filter(n => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(n)).length;
-                if (match > maxMatch) { maxMatch = match; dateMatch = t.date_tirage; }
+            const counts = {}, lastSeen = {};
+            data.forEach((t, idx) => {
+                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                    counts[n] = (counts[n] || 0) + 1;
+                    if (lastSeen[n] === undefined) lastSeen[n] = idx;
+                });
             });
 
-            const maSomme = mesNumeros.reduce((a, b) => a + b, 0);
-            const borneB = moyenneOptimale - 30;
-            const borneH = moyenneOptimale + 30;
-            let feedback = maSomme >= borneB && maSomme <= borneH ? "✅ Somme équilibrée" : "⚠️ Somme hors-zone";
-            
-            resultDiv.innerHTML = `<div class="stat-highlight">Record : ${maxMatch}/7</div>` + 
-                `<p><small>Le ${dateMatch}</small></p>` +
-                `<p>${feedback} (Total: ${maSomme})</p>`;
+            const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
+            const retards = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
+
+            let monCode = [], tentative = 0, valide = false;
+            while (!valide && tentative < 500) {
+                monCode = []; tentative++;
+                let sC = [...chauds];
+                for(let i=0; i<3; i++) monCode.push(sC.splice(Math.floor(Math.random()*sC.length), 1)[0]);
+                let sR = [...retards].filter(n => !monCode.includes(n));
+                for(let i=0; i<2; i++) monCode.push(sR.splice(Math.floor(Math.random()*sR.length), 1)[0]);
+                while(monCode.length < 7) { let n = Math.floor(Math.random()*50)+1; if(!monCode.includes(n)) monCode.push(n); }
+                monCode.sort((a, b) => a - b);
+                const somme = monCode.reduce((a, b) => a + b, 0);
+                const sOk = (somme >= moyenneOptimale - 30 && somme <= moyenneOptimale + 30);
+                let nS = 0, sL = false;
+                for (let i = 0; i < 6; i++) { if (monCode[i+1] === monCode[i]+1) { nS++; if(i < 5 && monCode[i+2] === monCode[i]+2) sL = true; } }
+                if (sOk && !sL && nS <= 1) valide = true;
+            }
+            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Somme: ${monCode.reduce((a,b)=>a+b,0)}</small>`;
+        }
+
+        // Fonctions simplifiées pour le testeur et traqueur
+        async function traquerNumero() {
+            const n = document.getElementById('select-traqueur').value;
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(parseInt(n))).map(t => t.date_tirage);
+            document.getElementById('resultat-traqueur').innerHTML = `Sorties: ${dates.length} <br> ${dates.join(', ')}`;
         }
 
         async function changerAnnee() {
-            const annee = document.getElementById('select-annee').value;
-            const res = await fetch(`/api/tirages?year=${annee}`);
+            const a = document.getElementById('select-annee').value;
+            const res = await fetch(`/api/tirages?year=${a}`);
             const data = await res.json();
-            const div = document.getElementById('archive-resultats');
-            div.innerHTML = '';
-            data.forEach(t => {
-                let boules = '';
-                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => { boules += `<span class="boule-mini">${n}</span>`; });
-                div.innerHTML += `<div class="archive-item"><strong>${t.date_tirage}</strong> <div>${boules}</div></div>`;
-            });
+            document.getElementById('archive-resultats').innerHTML = data.map(t => {
+                const b = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].map(n => `<span class="boule-mini">${n}</span>`).join('');
+                return `<div class="archive-item"><strong>${t.date_tirage}</strong> <div>${b}</div></div>`;
+            }).join('');
         }
 
         updateDashboard();
