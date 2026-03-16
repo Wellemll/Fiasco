@@ -9,35 +9,32 @@
         .container { max-width: 900px; margin: auto; padding: 10px; }
         .card { background: #2d2d2d; padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        /* SYSTÈME D'ONGLETS */
         .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; position: sticky; top: 0; background: #1a1a1a; padding: 10px 0; z-index: 100; }
         .tab-btn { padding: 10px 15px; cursor: pointer; border-radius: 8px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; font-size: 0.9em; }
         .tab-btn.active { background: #e63946; box-shadow: 0 0 10px #e63946; }
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
-        /* BOULES COMPACTES */
         .boule { display: inline-block; width: 28px; height: 28px; background: #e63946; color: white; border-radius: 50%; line-height: 28px; margin: 2px; font-weight: bold; border: 1px solid #fff; font-size: 0.8em; }
-        .boule-chaude { background: #ffb703; color: #023047; }
-        .boule-froide { background: #a8dadc; color: #1d3557; }
         .boule-mini { display: inline-block; width: 22px; height: 22px; background: #e63946; border-radius: 50%; line-height: 22px; margin: 1px; font-size: 10px; font-weight: bold; border: 1px solid white; }
         
-        /* GRILLES */
         .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; justify-items: center; }
-        .stat-item { background: rgba(255,255,255,0.05); padding: 5px 2px; border-radius: 6px; width: 100%; border: 1px solid rgba(255,255,255,0.02); }
+        .stat-item { background: rgba(255,255,255,0.05); padding: 5px 2px; border-radius: 6px; width: 100%; }
+
+        /* NOUVEAU : STYLE POUR LES DATES DU TRAQUEUR */
+        .date-badge { background: #1d3557; color: #a8dadc; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; }
+        .results-scroll { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; margin-top: 10px; max-height: 150px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
         select, input { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; margin: 5px; }
         .input-loto { width: 40px; text-align: center; font-weight: bold; }
         .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
         .stat-highlight { font-size: 1.4em; font-weight: bold; color: #ffb703; }
-        h4 { margin: 5px 0 10px 0; font-size: 1em; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v3.0 Full Stats</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v3.1 Fix</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement...</div>
 
@@ -51,31 +48,27 @@
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
                 <h3>Générateur Intelligent</h3>
-                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer une combinaison</button>
+                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
         </div>
 
         <div id="tab-stats" class="tab-content">
             <div class="card">
-                <h4>📊 Fréquence Totale (1 à 50)</h4>
-                <p><small>Nombre de fois que chaque numéro est sorti.</small></p>
-                <div id="frequence-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto; padding-right:5px;"></div>
+                <h4>📊 Fréquence (1-50)</h4>
+                <div id="frequence-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
-
             <div class="card" style="background: #1d3557;">
-                <h4>🧊 Retards Actuels (1 à 50)</h4>
-                <p><small>Nombre de tirages écoulés depuis la dernière sortie.</small></p>
-                <div id="retard-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto; padding-right:5px;"></div>
+                <h4>🧊 Retards (1-50)</h4>
+                <div id="retard-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
-
             <div style="display: flex; gap: 10px;">
-                <div class="card" style="background: #bc6c25; flex: 1; padding: 10px;">
+                <div class="card" style="background: #bc6c25; flex: 1;">
                     <small>Somme Magique</small>
                     <div id="resultat-somme" class="stat-highlight">-</div>
                 </div>
-                <div class="card" style="background: #283618; flex: 1; padding: 10px;">
-                    <small>Tirages avec Suites</small>
+                <div class="card" style="background: #283618; flex: 1;">
+                    <small>Suites</small>
                     <div id="resultat-suites" class="stat-highlight">-</div>
                 </div>
             </div>
@@ -85,27 +78,27 @@
             <div class="card" style="background: #457b9d;">
                 <h4>🕵️ Traqueur de Numéro</h4>
                 <select id="select-traqueur" onchange="traquerNumero()"><option value="">N°</option></select>
-                <div id="resultat-traqueur" style="margin-top: 10px; font-size: 0.8em; max-height: 100px; overflow-y: auto;"></div>
+                <div id="resultat-traqueur"></div>
             </div>
             <div class="card" style="background: #1d3557;">
                 <h4>🔍 Testeur fétiche</h4>
                 <div id="inputs-testeur">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
-                    <input type="number" class="input-loto" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
+                    <input type="number" class="input-loto-test" min="1" max="50" placeholder="0">
                 </div>
-                <button onclick="testerMesNumeros()" style="margin-top:10px; background: #e63946; color: white; border: none; padding: 10px; border-radius: 5px;">Analyser ma grille</button>
-                <div id="resultat-testeur" style="margin-top: 10px;"></div>
+                <button onclick="testerMesNumeros()" style="margin-top:10px; background: #e63946; color: white; border: none; padding: 10px 18px; border-radius: 5px; font-weight: bold; cursor: pointer;">Analyser ma grille</button>
+                <div id="resultat-testeur" style="margin-top: 15px;"></div>
             </div>
         </div>
 
         <div id="tab-hist" class="tab-content">
             <div class="card">
-                <h4>📂 Archives Historiques</h4>
+                <h4>📂 Archives</h4>
                 <select id="select-annee" onchange="changerAnnee()"></select>
                 <div id="archive-resultats" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
             </div>
@@ -131,54 +124,91 @@
                 document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés`;
 
                 const counts = {}, lastSeen = {};
-                let totalSommes = 0, tiragesAvecSuites = 0;
+                let totalS = 0, nbS = 0;
 
                 data.forEach((t, index) => {
-                    const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a, b) => a - b);
-                    totalSommes += nums.reduce((a, b) => a + b, 0);
-                    let hasSuite = false;
-                    for (let i = 0; i < 6; i++) { if (nums[i+1] === nums[i] + 1) hasSuite = true; }
-                    if (hasSuite) tiragesAvecSuites++;
+                    const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a,b)=>a-b);
+                    totalS += nums.reduce((a,b)=>a+b,0);
+                    let s=false; for(let i=0;i<6;i++){if(nums[i+1]===nums[i]+1)s=true;} if(s) nbS++;
                     nums.forEach(n => {
-                        counts[n] = (counts[n] || 0) + 1;
-                        if (lastSeen[n] === undefined) lastSeen[n] = index;
+                        counts[n] = (counts[n]||0)+1;
+                        if(lastSeen[n]===undefined) lastSeen[n]=index;
                     });
                 });
 
-                moyenneOptimale = Math.round(totalSommes / data.length);
+                moyenneOptimale = Math.round(totalS/data.length);
                 document.getElementById('resultat-somme').innerText = moyenneOptimale;
-                document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(0)}%`;
+                document.getElementById('resultat-suites').innerText = `${((nbS/data.length)*100).toFixed(0)}%`;
 
-                // 1. GRILLE DE FREQUENCE TOTALE (Toutes les boules)
                 const freqDiv = document.getElementById('frequence-stats');
                 freqDiv.innerHTML = '';
-                const freqArray = [];
-                for (let i = 1; i <= 50; i++) { freqArray.push([i, counts[i] || 0]); }
-                // Tri par fréquence décroissante
-                freqArray.sort((a, b) => b[1] - a[1]).forEach(([num, count]) => {
-                    let style = count > 205 ? "background:#ffb703; color:#023047; border:1px solid #fff;" : "background:#444; color:white;";
-                    freqDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${num}</span><br><small>${count}</small></div>`;
-                });
+                for (let i=1; i<=50; i++) {
+                    let c = counts[i]||0;
+                    let style = c > 205 ? "background:#ffb703; color:#023047;" : "background:#444;";
+                    freqDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${i}</span><br><small>${c}</small></div>`;
+                }
 
-                // 2. GRILLE DE RETARD COMPACT (Toutes les boules)
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
-                const retardsArray = [];
-                for (let i = 1; i <= 50; i++) { retardsArray.push([i, lastSeen[i] || 0]); }
-                // Tri par retard décroissant
-                retardsArray.sort((a, b) => b[1] - a[1]).forEach(([num, wait]) => {
-                    let style = wait > 20 ? "background:#457b9d; border:1px solid white;" : "background:#a8dadc; color:#1d3557;";
-                    retardDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${num}</span><br><small>${wait}t.</small></div>`;
+                let retardsArr = [];
+                for(let i=1; i<=50; i++){ retardsArr.push([i, lastSeen[i]||0]); }
+                retardsArr.sort((a,b)=>b[1]-a[1]).forEach(([n, w])=>{
+                    let style = w > 20 ? "background:#457b9d; border:1px solid white;" : "background:#a8dadc; color:#1d3557;";
+                    retardDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${n}</span><br><small>${w}t.</small></div>`;
                 });
 
-                // Menus
                 const selectAn = document.getElementById('select-annee');
-                const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
-                selectAn.innerHTML = annees.map(a => `<option value="${a}">${a}</option>`).join('');
+                const annees = [...new Set(data.map(t=>t.date_tirage.substring(0,4)))].sort().reverse();
+                selectAn.innerHTML = annees.map(a=>`<option value="${a}">${a}</option>`).join('');
+                
                 const selectTr = document.getElementById('select-traqueur');
-                for(let i=1; i<=50; i++) { selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
+                selectTr.innerHTML = '<option value="">N°</option>';
+                for(let i=1; i<=50; i++){ selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
+            } catch(e){ console.error(e); }
+        }
 
-            } catch (e) { console.error(e); }
+        // FIX TRAQUEUR : Affichage en badges
+        async function traquerNumero() {
+            const n = parseInt(document.getElementById('select-traqueur').value);
+            if(!n) return;
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(n)).map(t => t.date_tirage);
+            
+            document.getElementById('resultat-traqueur').innerHTML = `
+                <div style="margin-top:10px;"><strong>Sorties: ${dates.length}</strong></div>
+                <div class="results-scroll">${dates.map(d => `<span class="date-badge">${d}</span>`).join('')}</div>
+            `;
+        }
+
+        // FIX TESTEUR : Logique de comparaison corrigée
+        async function testerMesNumeros() {
+            const inputs = document.querySelectorAll('.input-loto-test');
+            const mesNums = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n));
+            const resDiv = document.getElementById('resultat-testeur');
+
+            if(mesNums.length !== 7) { alert("Entre 7 numéros !"); return; }
+
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            let maxM = 0, bestD = "";
+
+            data.forEach(t => {
+                const tirage = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7];
+                const match = mesNums.filter(n => tirage.includes(n)).length;
+                if(match > maxM) { maxM = match; bestD = t.date_tirage; }
+            });
+
+            const somme = mesNums.reduce((a,b)=>a+b,0);
+            const status = (somme >= moyenneOptimale-30 && somme <= moyenneOptimale+30) ? "✅ Équilibrée" : "⚠️ Hors-zone";
+
+            resDiv.innerHTML = `
+                <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;">
+                    <div class="stat-highlight">Record: ${maxM}/7</div>
+                    <div style="font-size:0.8em; color:#aaa;">Trouvé le ${bestD}</div>
+                    <div style="margin-top:5px; font-weight:bold;">${status} (Somme: ${somme})</div>
+                </div>
+            `;
         }
 
         async function genererCode() {
@@ -204,21 +234,13 @@
                 for(let i=0; i<2; i++) monCode.push(sR.splice(Math.floor(Math.random()*sR.length), 1)[0]);
                 while(monCode.length < 7) { let n = Math.floor(Math.random()*50)+1; if(!monCode.includes(n)) monCode.push(n); }
                 monCode.sort((a, b) => a - b);
-                const somme = monCode.reduce((a, b) => a + b, 0);
-                const sOk = (somme >= moyenneOptimale - 30 && somme <= moyenneOptimale + 30);
+                const som = monCode.reduce((a, b) => a + b, 0);
+                const sOk = (som >= moyenneOptimale - 30 && som <= moyenneOptimale + 30);
                 let nS = 0, sL = false;
                 for (let i = 0; i < 6; i++) { if (monCode[i+1] === monCode[i]+1) { nS++; if(i < 5 && monCode[i+2] === monCode[i]+2) sL = true; } }
                 if (sOk && !sL && nS <= 1) valide = true;
             }
-            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Qualité : ${tentative} essais | Somme : ${monCode.reduce((a,b)=>a+b,0)}</small>`;
-        }
-
-        async function traquerNumero() {
-            const n = document.getElementById('select-traqueur').value;
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-            const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(parseInt(n))).map(t => t.date_tirage);
-            document.getElementById('resultat-traqueur').innerHTML = `Sorties: ${dates.length} <br> ${dates.join(', ')}`;
+            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Qualité : ${tentative} essais</small>`;
         }
 
         async function changerAnnee() {
