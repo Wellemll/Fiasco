@@ -9,35 +9,35 @@
         .container { max-width: 900px; margin: auto; padding: 10px; }
         .card { background: #2d2d2d; padding: 15px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
-        /* SYSTÈME D'ONGLETS FIXÉ */
+        /* SYSTÈME D'ONGLETS */
         .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; position: sticky; top: 0; background: #1a1a1a; padding: 10px 0; z-index: 100; }
         .tab-btn { padding: 10px 15px; cursor: pointer; border-radius: 8px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; font-size: 0.9em; }
         .tab-btn.active { background: #e63946; box-shadow: 0 0 10px #e63946; }
-        
-        /* Cache les contenus non actifs par défaut */
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
         /* BOULES COMPACTES */
-        .boule { display: inline-block; width: 30px; height: 30px; background: #e63946; color: white; border-radius: 50%; line-height: 30px; margin: 3px; font-weight: bold; border: 1px solid #fff; font-size: 0.85em; }
+        .boule { display: inline-block; width: 28px; height: 28px; background: #e63946; color: white; border-radius: 50%; line-height: 28px; margin: 2px; font-weight: bold; border: 1px solid #fff; font-size: 0.8em; }
         .boule-chaude { background: #ffb703; color: #023047; }
+        .boule-froide { background: #a8dadc; color: #1d3557; }
         .boule-mini { display: inline-block; width: 22px; height: 22px; background: #e63946; border-radius: 50%; line-height: 22px; margin: 1px; font-size: 10px; font-weight: bold; border: 1px solid white; }
         
-        /* GRILLE ULTRA COMPACTE POUR LES RETARDS */
-        .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(55px, 1fr)); gap: 5px; justify-items: center; }
-        .stat-item { background: rgba(255,255,255,0.05); padding: 5px; border-radius: 8px; width: 100%; }
+        /* GRILLES */
+        .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; justify-items: center; }
+        .stat-item { background: rgba(255,255,255,0.05); padding: 5px 2px; border-radius: 6px; width: 100%; border: 1px solid rgba(255,255,255,0.02); }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
         select, input { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; margin: 5px; }
         .input-loto { width: 40px; text-align: center; font-weight: bold; }
-        .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.9em; }
+        .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
         .stat-highlight { font-size: 1.4em; font-weight: bold; color: #ffb703; }
+        h4 { margin: 5px 0 10px 0; font-size: 1em; text-transform: uppercase; letter-spacing: 1px; color: #aaa; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v2.9 Compact</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v3.0 Full Stats</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement...</div>
 
@@ -50,30 +50,32 @@
 
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
-                <h3>Générateur Pro</h3>
-                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Lancer le scan</button>
+                <h3>Générateur Intelligent</h3>
+                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer une combinaison</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
         </div>
 
         <div id="tab-stats" class="tab-content">
             <div class="card">
-                <h4>🔥 Top Fréquence</h4>
-                <div id="statistiques" class="grid-compact"></div>
+                <h4>📊 Fréquence Totale (1 à 50)</h4>
+                <p><small>Nombre de fois que chaque numéro est sorti.</small></p>
+                <div id="frequence-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto; padding-right:5px;"></div>
             </div>
 
             <div class="card" style="background: #1d3557;">
-                <h4>🧊 Retards (1 à 50)</h4>
-                <div id="retard-stats" class="grid-compact" style="max-height: 350px; overflow-y: auto;"></div>
+                <h4>🧊 Retards Actuels (1 à 50)</h4>
+                <p><small>Nombre de tirages écoulés depuis la dernière sortie.</small></p>
+                <div id="retard-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto; padding-right:5px;"></div>
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <div class="card" style="background: #bc6c25; flex: 1;">
+                <div class="card" style="background: #bc6c25; flex: 1; padding: 10px;">
                     <small>Somme Magique</small>
                     <div id="resultat-somme" class="stat-highlight">-</div>
                 </div>
-                <div class="card" style="background: #283618; flex: 1;">
-                    <small>Suites</small>
+                <div class="card" style="background: #283618; flex: 1; padding: 10px;">
+                    <small>Tirages avec Suites</small>
                     <div id="resultat-suites" class="stat-highlight">-</div>
                 </div>
             </div>
@@ -81,7 +83,7 @@
 
         <div id="tab-check" class="tab-content">
             <div class="card" style="background: #457b9d;">
-                <h4>🕵️ Traqueur</h4>
+                <h4>🕵️ Traqueur de Numéro</h4>
                 <select id="select-traqueur" onchange="traquerNumero()"><option value="">N°</option></select>
                 <div id="resultat-traqueur" style="margin-top: 10px; font-size: 0.8em; max-height: 100px; overflow-y: auto;"></div>
             </div>
@@ -96,14 +98,14 @@
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
                     <input type="number" class="input-loto" min="1" max="50" placeholder="0">
                 </div>
-                <button onclick="testerMesNumeros()" style="margin-top:10px; background: #e63946; color: white; border: none; padding: 10px; border-radius: 5px;">Analyser</button>
+                <button onclick="testerMesNumeros()" style="margin-top:10px; background: #e63946; color: white; border: none; padding: 10px; border-radius: 5px;">Analyser ma grille</button>
                 <div id="resultat-testeur" style="margin-top: 10px;"></div>
             </div>
         </div>
 
         <div id="tab-hist" class="tab-content">
             <div class="card">
-                <h4>📂 Archives</h4>
+                <h4>📂 Archives Historiques</h4>
                 <select id="select-annee" onchange="changerAnnee()"></select>
                 <div id="archive-resultats" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
             </div>
@@ -113,14 +115,11 @@
     <script>
         let moyenneOptimale = 176;
 
-        // RÉPARATION DES ONGLETS
         function openTab(evt, tabId) {
             const contents = document.getElementsByClassName("tab-content");
             for (let i = 0; i < contents.length; i++) { contents[i].style.display = "none"; }
-            
             const buttons = document.getElementsByClassName("tab-btn");
             for (let i = 0; i < buttons.length; i++) { buttons[i].className = buttons[i].className.replace(" active", ""); }
-            
             document.getElementById(tabId).style.display = "block";
             evt.currentTarget.className += " active";
         }
@@ -150,29 +149,32 @@
                 document.getElementById('resultat-somme').innerText = moyenneOptimale;
                 document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(0)}%`;
 
-                // AFFICHAGE FREQUENCE COMPACT
-                const sortedChauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 12);
-                const statDiv = document.getElementById('statistiques');
-                statDiv.innerHTML = '';
-                sortedChauds.forEach(([num, count]) => {
-                    statDiv.innerHTML += `<div class="stat-item"><span class="boule boule-chaude">${num}</span><br><small>${count}</small></div>`;
+                // 1. GRILLE DE FREQUENCE TOTALE (Toutes les boules)
+                const freqDiv = document.getElementById('frequence-stats');
+                freqDiv.innerHTML = '';
+                const freqArray = [];
+                for (let i = 1; i <= 50; i++) { freqArray.push([i, counts[i] || 0]); }
+                // Tri par fréquence décroissante
+                freqArray.sort((a, b) => b[1] - a[1]).forEach(([num, count]) => {
+                    let style = count > 205 ? "background:#ffb703; color:#023047; border:1px solid #fff;" : "background:#444; color:white;";
+                    freqDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${num}</span><br><small>${count}</small></div>`;
                 });
 
-                // AFFICHAGE RETARDS COMPACT (1-50)
+                // 2. GRILLE DE RETARD COMPACT (Toutes les boules)
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
                 const retardsArray = [];
                 for (let i = 1; i <= 50; i++) { retardsArray.push([i, lastSeen[i] || 0]); }
+                // Tri par retard décroissant
                 retardsArray.sort((a, b) => b[1] - a[1]).forEach(([num, wait]) => {
                     let style = wait > 20 ? "background:#457b9d; border:1px solid white;" : "background:#a8dadc; color:#1d3557;";
                     retardDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${num}</span><br><small>${wait}t.</small></div>`;
                 });
 
-                // Remplissage menus
+                // Menus
                 const selectAn = document.getElementById('select-annee');
                 const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
                 selectAn.innerHTML = annees.map(a => `<option value="${a}">${a}</option>`).join('');
-                
                 const selectTr = document.getElementById('select-traqueur');
                 for(let i=1; i<=50; i++) { selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
 
@@ -184,7 +186,6 @@
             codeDiv.innerHTML = 'Scan...';
             const res = await fetch('/api/tirages');
             const data = await res.json();
-            
             const counts = {}, lastSeen = {};
             data.forEach((t, idx) => {
                 [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
@@ -192,10 +193,8 @@
                     if (lastSeen[n] === undefined) lastSeen[n] = idx;
                 });
             });
-
             const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
             const retards = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
-
             let monCode = [], tentative = 0, valide = false;
             while (!valide && tentative < 500) {
                 monCode = []; tentative++;
@@ -211,10 +210,9 @@
                 for (let i = 0; i < 6; i++) { if (monCode[i+1] === monCode[i]+1) { nS++; if(i < 5 && monCode[i+2] === monCode[i]+2) sL = true; } }
                 if (sOk && !sL && nS <= 1) valide = true;
             }
-            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Somme: ${monCode.reduce((a,b)=>a+b,0)}</small>`;
+            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Qualité : ${tentative} essais | Somme : ${monCode.reduce((a,b)=>a+b,0)}</small>`;
         }
 
-        // Fonctions simplifiées pour le testeur et traqueur
         async function traquerNumero() {
             const n = document.getElementById('select-traqueur').value;
             const res = await fetch('/api/tirages');
