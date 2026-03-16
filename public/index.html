@@ -15,28 +15,30 @@
         .tab-content { display: none; animation: fadeIn 0.3s; }
         .tab-content.active { display: block; }
 
+        /* BOULES ET COULEURS STRATÉGIQUES */
         .boule { display: inline-block; width: 28px; height: 28px; background: #e63946; color: white; border-radius: 50%; line-height: 28px; margin: 2px; font-weight: bold; border: 1px solid #fff; font-size: 0.8em; }
-        .boule-chaude { background: #ffb703 !important; color: #023047 !important; border: 1px solid #fff !important; box-shadow: 0 0 8px rgba(255, 183, 3, 0.4); }
+        .boule-top-chaud { background: #ffb703 !important; color: #023047 !important; border: 1px solid #fff !important; box-shadow: 0 0 8px rgba(255, 183, 3, 0.5); }
+        .boule-top-retard { background: #457b9d !important; color: white !important; border: 2px solid white !important; box-shadow: 0 0 8px rgba(69, 123, 157, 0.5); }
         .boule-mini { display: inline-block; width: 22px; height: 22px; background: #e63946; border-radius: 50%; line-height: 22px; margin: 1px; font-size: 10px; font-weight: bold; border: 1px solid white; }
         
         .grid-compact { display: grid; grid-template-columns: repeat(auto-fill, minmax(50px, 1fr)); gap: 4px; justify-items: center; }
         .stat-item { background: rgba(255,255,255,0.05); padding: 5px 2px; border-radius: 6px; width: 100%; }
 
-        .date-badge { background: #1d3557; color: #a8dadc; padding: 3px 6px; border-radius: 4px; font-size: 10px; font-family: monospace; }
         .results-scroll { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 5px; margin-top: 10px; max-height: 150px; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+        .date-badge { background: #1d3557; color: #a8dadc; padding: 3px 6px; border-radius: 4px; font-size: 10px; }
 
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         select, input { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; margin: 5px; }
-        .input-loto-test { width: 40px; text-align: center; font-weight: bold; background: #555; border-radius: 5px; color: white; border: 1px solid #777; }
-        .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
+        .input-loto-test { width: 40px; text-align: center; font-weight: bold; background: #555; color: white; border-radius: 5px; border: 1px solid #777; }
         .stat-highlight { font-size: 1.4em; font-weight: bold; color: #ffb703; }
+        .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v3.2 Elite</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.4em;">v3.4 Elite Scan</small></h1>
         
-        <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement...</div>
+        <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement des données...</div>
 
         <div class="tabs">
             <button class="tab-btn active" onclick="openTab(event, 'tab-gen')">💎 Générer</button>
@@ -47,7 +49,8 @@
 
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
-                <h3>Générateur Intelligent</h3>
+                <h3>Générateur Stratégique (Top 10)</h3>
+                <p><small>Puisage : 3 <span style="color:#ffb703">Chauds</span> + 2 <span style="color:#a8dadc">Retards</span> + 2 Aléatoires</small></p>
                 <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
@@ -55,20 +58,19 @@
 
         <div id="tab-stats" class="tab-content">
             <div class="card">
-                <h4>📊 Fréquence (Top 12 en Jaune)</h4>
-                <p><small>Classés du plus fréquent au moins fréquent.</small></p>
+                <h4>🔥 Fréquence (Top 10 en Jaune)</h4>
                 <div id="frequence-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
             <div class="card" style="background: #1d3557;">
-                <h4>🧊 Retards Actuels (1-50)</h4>
+                <h4>🧊 Retards (Top 10 en Bleu)</h4>
                 <div id="retard-stats" class="grid-compact" style="max-height: 300px; overflow-y: auto;"></div>
             </div>
             <div style="display: flex; gap: 10px;">
-                <div class="card" style="background: #bc6c25; flex: 1;">
+                <div class="card" style="background: #bc6c25; flex: 1; padding: 10px;">
                     <small>Somme Magique</small>
                     <div id="resultat-somme" class="stat-highlight">-</div>
                 </div>
-                <div class="card" style="background: #283618; flex: 1;">
+                <div class="card" style="background: #283618; flex: 1; padding: 10px;">
                     <small>Suites</small>
                     <div id="resultat-suites" class="stat-highlight">-</div>
                 </div>
@@ -77,7 +79,7 @@
 
         <div id="tab-check" class="tab-content">
             <div class="card" style="background: #457b9d;">
-                <h4>🕵️ Traqueur de Numéro</h4>
+                <h4>🕵️ Traqueur</h4>
                 <select id="select-traqueur" onchange="traquerNumero()"><option value="">N°</option></select>
                 <div id="resultat-traqueur"></div>
             </div>
@@ -141,45 +143,75 @@
                 document.getElementById('resultat-somme').innerText = moyenneOptimale;
                 document.getElementById('resultat-suites').innerText = `${((nbS/data.length)*100).toFixed(0)}%`;
 
-                // --- FREQUENCE (TRIÉ PAR PERFORMANCE) ---
+                // --- FREQUENCES (Triées + Top 10 Jaune) ---
                 const freqDiv = document.getElementById('frequence-stats');
                 freqDiv.innerHTML = '';
-                
-                // On crée un tableau des fréquences
                 let freqArr = [];
                 for (let i=1; i<=50; i++) { freqArr.push({n: i, c: counts[i]||0}); }
-                
-                // Tri du plus grand au plus petit
                 freqArr.sort((a, b) => b.c - a.c);
-
                 freqArr.forEach((item, index) => {
-                    // Les 12 premiers reçoivent la classe "boule-chaude" (jaune)
-                    let classeSpeciale = index < 12 ? "boule-chaude" : "";
-                    freqDiv.innerHTML += `
-                        <div class="stat-item">
-                            <span class="boule ${classeSpeciale}">${item.n}</span>
-                            <br><small>${item.c}</small>
-                        </div>`;
+                    let c = index < 10 ? "boule-top-chaud" : "";
+                    freqDiv.innerHTML += `<div class="stat-item"><span class="boule ${c}">${item.n}</span><br><small>${item.c}</small></div>`;
                 });
 
-                // --- RETARDS (TRIÉ PAR URGENCE) ---
+                // --- RETARDS (Triés + Top 10 Bleu) ---
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
                 let retArr = [];
                 for(let i=1; i<=50; i++){ retArr.push({n: i, w: lastSeen[i]||0}); }
-                retArr.sort((a,b)=>b.w - a.w).forEach((item)=>{
-                    let style = item.w > 20 ? "background:#457b9d; border:1px solid white;" : "background:#a8dadc; color:#1d3557;";
-                    retardDiv.innerHTML += `<div class="stat-item"><span class="boule" style="${style}">${item.n}</span><br><small>${item.w}t.</small></div>`;
+                retArr.sort((a,b)=>b.w - a.w).forEach((item, index)=>{
+                    let c = index < 10 ? "boule-top-retard" : "";
+                    let s = (index >= 10 && item.w > 15) ? "background:#a8dadc; color:#1d3557;" : "";
+                    retardDiv.innerHTML += `<div class="stat-item"><span class="boule ${c}" style="${s}">${item.n}</span><br><small>${item.w}t.</small></div>`;
                 });
 
-                const selectAn = document.getElementById('select-annee');
-                const annees = [...new Set(data.map(t=>t.date_tirage.substring(0,4)))].sort().reverse();
-                selectAn.innerHTML = annees.map(a=>`<option value="${a}">${a}</option>`).join('');
-                
-                const selectTr = document.getElementById('select-traqueur');
-                selectTr.innerHTML = '<option value="">N°</option>';
-                for(let i=1; i<=50; i++){ selectTr.innerHTML += `<option value="${i}">${i}</option>`; }
+                const sA = document.getElementById('select-annee');
+                const ans = [...new Set(data.map(t=>t.date_tirage.substring(0,4)))].sort().reverse();
+                sA.innerHTML = ans.map(a=>`<option value="${a}">${a}</option>`).join('');
+                const sT = document.getElementById('select-traqueur');
+                sT.innerHTML = '<option value="">N°</option>';
+                for(let i=1; i<=50; i++) sT.innerHTML += `<option value="${i}">${i}</option>`;
             } catch(e){ console.error(e); }
+        }
+
+        async function genererCode() {
+            const codeDiv = document.getElementById('mon-code');
+            codeDiv.innerHTML = 'Scan stratégique...';
+            const res = await fetch('/api/tirages');
+            const data = await res.json();
+            const counts = {}, lastSeen = {};
+            data.forEach((t, idx) => {
+                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
+                    counts[n] = (counts[n] || 0) + 1;
+                    if (lastSeen[n] === undefined) lastSeen[n] = idx;
+                });
+            });
+
+            const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10).map(e => parseInt(e[0]));
+            const retards = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 10).map(e => parseInt(e[0]));
+
+            let monCode = [], tentative = 0, valide = false;
+            while (!valide && tentative < 1500) {
+                monCode = []; tentative++;
+                let sC = [...chauds];
+                for(let i=0; i<3; i++) monCode.push(sC.splice(Math.floor(Math.random()*sC.length), 1)[0]);
+                let sR = [...retards].filter(n => !monCode.includes(n));
+                for(let i=0; i<2; i++) { if(sR.length > 0) monCode.push(sR.splice(Math.floor(Math.random()*sR.length), 1)[0]); }
+                while(monCode.length < 7) {
+                    let n = Math.floor(Math.random()*50)+1;
+                    if(!monCode.includes(n)) monCode.push(n);
+                }
+                monCode.sort((a, b) => a - b);
+                const som = monCode.reduce((a, b) => a + b, 0);
+                const sOk = (som >= moyenneOptimale - 30 && som <= moyenneOptimale + 30);
+                let nS = 0, sL = false;
+                for (let i = 0; i < 6; i++) { if (monCode[i+1] === monCode[i]+1) { nS++; if(i < 5 && monCode[i+2] === monCode[i]+2) sL = true; } }
+                if (sOk && !sL && nS <= 1) valide = true;
+            }
+            codeDiv.innerHTML = monCode.map(n => {
+                let c = chauds.includes(n) ? "boule-top-chaud" : (retards.includes(n) ? "boule-top-retard" : "");
+                return `<span class="boule ${c}">${n}</span>`;
+            }).join('') + `<br><small>Somme: ${monCode.reduce((a,b)=>a+b,0)}</small>`;
         }
 
         async function traquerNumero() {
@@ -188,9 +220,7 @@
             const res = await fetch('/api/tirages');
             const data = await res.json();
             const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(n)).map(t => t.date_tirage);
-            document.getElementById('resultat-traqueur').innerHTML = `
-                <div style="margin-top:10px;"><strong>Sorties: ${dates.length}</strong></div>
-                <div class="results-scroll">${dates.map(d => `<span class="date-badge">${d}</span>`).join('')}</div>`;
+            document.getElementById('resultat-traqueur').innerHTML = `<strong>Sorties: ${dates.length}</strong><div class="results-scroll">${dates.map(d => `<span class="date-badge">${d}</span>`).join('')}</div>`;
         }
 
         async function testerMesNumeros() {
@@ -205,41 +235,9 @@
                 const match = mesNums.filter(n => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(n)).length;
                 if(match > maxM) { maxM = match; bestD = t.date_tirage; }
             });
-            const somme = mesNums.reduce((a,b)=>a+b,0);
-            const status = (somme >= moyenneOptimale-30 && somme <= moyenneOptimale+30) ? "✅ Équilibrée" : "⚠️ Hors-zone";
-            resDiv.innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;"><div class="stat-highlight">Record: ${maxM}/7</div><div style="font-size:0.8em; color:#aaa;">Trouvé le ${bestD}</div><div style="margin-top:5px; font-weight:bold;">${status} (Somme: ${somme})</div></div>`;
-        }
-
-        async function genererCode() {
-            const codeDiv = document.getElementById('mon-code');
-            codeDiv.innerHTML = 'Scan...';
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-            const counts = {}, lastSeen = {};
-            data.forEach((t, idx) => {
-                [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].forEach(n => {
-                    counts[n] = (counts[n] || 0) + 1;
-                    if (lastSeen[n] === undefined) lastSeen[n] = idx;
-                });
-            });
-            const chauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
-            const retards = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 15).map(e => parseInt(e[0]));
-            let monCode = [], tentative = 0, valide = false;
-            while (!valide && tentative < 500) {
-                monCode = []; tentative++;
-                let sC = [...chauds];
-                for(let i=0; i<3; i++) monCode.push(sC.splice(Math.floor(Math.random()*sC.length), 1)[0]);
-                let sR = [...retards].filter(n => !monCode.includes(n));
-                for(let i=0; i<2; i++) monCode.push(sR.splice(Math.floor(Math.random()*sR.length), 1)[0]);
-                while(monCode.length < 7) { let n = Math.floor(Math.random()*50)+1; if(!monCode.includes(n)) monCode.push(n); }
-                monCode.sort((a, b) => a - b);
-                const som = monCode.reduce((a, b) => a + b, 0);
-                const sOk = (som >= moyenneOptimale - 30 && som <= moyenneOptimale + 30);
-                let nS = 0, sL = false;
-                for (let i = 0; i < 6; i++) { if (monCode[i+1] === monCode[i]+1) { nS++; if(i < 5 && monCode[i+2] === monCode[i]+2) sL = true; } }
-                if (sOk && !sL && nS <= 1) valide = true;
-            }
-            codeDiv.innerHTML = monCode.map(n => `<span class="boule" style="background:#588157">${n}</span>`).join('') + `<br><small>Essais : ${tentative}</small>`;
+            const som = mesNums.reduce((a,b)=>a+b,0);
+            const status = (som >= moyenneOptimale-30 && som <= moyenneOptimale+30) ? "✅ Équilibrée" : "⚠️ Hors-zone";
+            resDiv.innerHTML = `<div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:10px;"><div class="stat-highlight">Record: ${maxM}/7</div><div style="font-size:0.8em; color:#aaa;">Trouvé le ${bestD}</div><div style="margin-top:5px; font-weight:bold;">${status} (Somme: ${som})</div></div>`;
         }
 
         async function changerAnnee() {
