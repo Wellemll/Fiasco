@@ -10,7 +10,7 @@
         .card { background: #2d2d2d; padding: 20px; border-radius: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); }
         
         /* SYSTÈME D'ONGLETS */
-        .tabs { display: flex; justify-content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; }
+        .tabs { display: flex; justify(content: center; margin-bottom: 20px; gap: 5px; flex-wrap: wrap; }
         .tab-btn { padding: 12px 20px; cursor: pointer; border-radius: 10px; border: none; background: #444; color: white; font-weight: bold; transition: 0.3s; }
         .tab-btn.active { background: #e63946; box-shadow: 0 0 10px #e63946; }
         .tab-content { display: none; animation: fadeIn 0.4s; }
@@ -32,10 +32,10 @@
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.7 Pro Auto</small></h1>
+        <h1>📊 Fiasco Engine <small style="font-size: 0.5em; vertical-align: middle;">v2.8 Deep Scan</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 20px; font-style: italic; color: #ffb703; font-size: 0.9em;">
-            Analyse des 1 321 tirages...
+            Analyse des données en cours...
         </div>
 
         <div class="tabs">
@@ -48,7 +48,7 @@
         <div id="tab-gen" class="tab-content active">
             <div class="card" style="background: #3a5a40;">
                 <h2>Générateur Intelligent Automatique</h2>
-                <p><small>Mixage dynamique basé sur la moyenne historique en temps réel.</small></p>
+                <p><small>Optimisé : 3 Chauds + 2 Retards + 2 Hasard | Max 1 suite</small></p>
                 <button onclick="genererCode()" style="padding: 15px 30px; font-size: 18px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold;">Générer</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
             </div>
@@ -61,30 +61,23 @@
             </div>
 
             <div class="card" style="background: #1d3557;">
-                <h2>🧊 Numéros "En Retard"</h2>
-                <p><small>Nombre de tirages écoulés depuis la dernière sortie.</small></p>
-                <div id="retard-stats" class="grid"></div>
+                <h2>🧊 Analyse Complète des Retards (1-50)</h2>
+                <p><small>Classés du plus froid au plus récent (nb de tirages écoulés).</small></p>
+                <div id="retard-stats" class="grid" style="max-height: 400px; overflow-y: auto; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;">
+                </div>
             </div>
 
             <div class="grid">
                 <div class="card" style="background: #bc6c25; flex: 1; min-width: 250px;">
                     <h2>⚖️ Somme Magique</h2>
-                    <p><small>Moyenne du total des 7 numéros</small></p>
                     <div id="resultat-somme" class="stat-highlight">-</div>
                     <div id="zone-somme" style="font-size: 0.8em; margin-top:5px; color: #fefae0;"></div>
                 </div>
 
                 <div class="card" style="background: #283618; flex: 1; min-width: 250px;">
-                    <h2>🔗 Suites (Consécutifs)</h2>
-                    <p><small>Fréquence des tirages avec suites</small></p>
+                    <h2>🔗 Fréquence des Suites</h2>
                     <div id="resultat-suites" class="stat-highlight">-</div>
                 </div>
-            </div>
-
-            <div class="card" style="background: #606c38;">
-                <h2>👯 Paires Magiques (Duos)</h2>
-                <button onclick="analyserPaires()" style="padding: 10px 20px; cursor: pointer; border-radius: 10px; border: none; background: #283618; color: white; font-weight: bold;">Calculer les Duos</button>
-                <div id="resultat-paires" class="grid" style="margin-top: 15px;"></div>
             </div>
         </div>
 
@@ -137,7 +130,7 @@
 
         async function genererCode() {
             const codeDiv = document.getElementById('mon-code');
-            codeDiv.innerHTML = 'Analyse des séquences...';
+            codeDiv.innerHTML = 'Scan des probabilités...';
 
             const res = await fetch('/api/tirages');
             const data = await res.json();
@@ -158,7 +151,6 @@
             let tentative = 0;
             let combinaisonValide = false;
 
-            // BORNES AUTOMATIQUES
             const borneBasse = moyenneOptimale - 30;
             const borneHaute = moyenneOptimale + 30;
 
@@ -166,7 +158,6 @@
                 monCode = [];
                 tentative++;
 
-                // Composition Mixte
                 let sourceChauds = [...chauds];
                 for(let i=0; i<3; i++) {
                     let idx = Math.floor(Math.random() * sourceChauds.length);
@@ -186,11 +177,9 @@
 
                 monCode.sort((a, b) => a - b);
 
-                // Validation Somme (AUTOMATIQUE)
                 const somme = monCode.reduce((a, b) => a + b, 0);
                 const sommeOk = (somme >= borneBasse && somme <= borneHaute);
 
-                // Validation Suites (MAX 1 SUITE DE DEUX)
                 let nbSuites = 0;
                 let suiteLongue = false;
                 for (let i = 0; i < monCode.length - 1; i++) {
@@ -215,8 +204,7 @@
                 const res = await fetch('/api/tirages');
                 const data = await res.json();
                 
-                const dateDebut = data[data.length - 1].date_tirage;
-                document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés (depuis le ${dateDebut})`;
+                document.getElementById('compteur-data').innerHTML = `🚀 <strong>${data.length}</strong> tirages analysés`;
 
                 const counts = {};
                 const lastSeen = {};
@@ -239,26 +227,35 @@
                     });
                 });
 
-                // MISE À JOUR DE LA MOYENNE GLOBALE AUTOMATIQUE
-                const moyenneSomme = Math.round(totalSommes / data.length);
-                moyenneOptimale = moyenneSomme;
-
-                document.getElementById('resultat-somme').innerText = moyenneSomme;
-                document.getElementById('zone-somme').innerText = `Zone d'Or : ${moyenneSomme - 30} à ${moyenneSomme + 30}`;
+                moyenneOptimale = Math.round(totalSommes / data.length);
+                document.getElementById('resultat-somme').innerText = moyenneOptimale;
+                document.getElementById('zone-somme').innerText = `Zone d'Or : ${moyenneOptimale - 30} à ${moyenneOptimale + 30}`;
                 document.getElementById('resultat-suites').innerText = `${((tiragesAvecSuites / data.length) * 100).toFixed(1)}%`;
 
-                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                const sortedChauds = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 10);
                 const statDiv = document.getElementById('statistiques');
                 statDiv.innerHTML = '';
-                sorted.forEach(([num, count]) => {
+                sortedChauds.forEach(([num, count]) => {
                     statDiv.innerHTML += `<div><span class="boule boule-chaude">${num}</span><br><small>${count} fois</small></div>`;
                 });
 
-                const sortedRetard = Object.entries(lastSeen).sort((a, b) => b[1] - a[1]).slice(0, 10);
+                // SCAN COMPLET DES RETARDS (1-50)
+                const tousLesNumeros = [];
+                for (let i = 1; i <= 50; i++) {
+                    tousLesNumeros.push([i, lastSeen[i] !== undefined ? lastSeen[i] : "Jms"]);
+                }
+                const sortedRetard = tousLesNumeros.sort((a, b) => {
+                    if (a[1] === "Jms") return -1;
+                    if (b[1] === "Jms") return 1;
+                    return b[1] - a[1];
+                });
+
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
                 sortedRetard.forEach(([num, wait]) => {
-                    retardDiv.innerHTML += `<div><span class="boule boule-froide">${num}</span><br><small><strong>${wait}</strong> tirages</small></div>`;
+                    let couleurStyle = "background: #a8dadc; color: #1d3557;";
+                    if (wait > 20) couleurStyle = "background: #457b9d; color: white; border: 2px solid white;";
+                    retardDiv.innerHTML += `<div style="margin: 5px; min-width: 65px;"><span class="boule" style="${couleurStyle}">${num}</span><br><small><strong>${wait}</strong> tir.</small></div>`;
                 });
 
                 const annees = [...new Set(data.map(t => t.date_tirage.substring(0, 4)))].sort().reverse();
@@ -282,29 +279,6 @@
             const dates = data.filter(t => [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].includes(num)).map(t => t.date_tirage);
             document.getElementById('resultat-traqueur').innerHTML = `<strong>Sorties : ${dates.length}</strong><br>` + 
                 `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:5px;margin-top:10px;">${dates.map(d => `<span style="background:#1d3557;padding:2px;border-radius:4px;font-size:11px;">${d}</span>`).join('')}</div>`;
-        }
-
-        async function analyserPaires() {
-            const resultDiv = document.getElementById('resultat-paires');
-            resultDiv.innerHTML = "Calcul...";
-            const res = await fetch('/api/tirages');
-            const data = await res.json();
-            const pairesCount = {};
-            data.forEach(t => {
-                const nums = [t.n1, t.n2, t.n3, t.n4, t.n5, t.n6, t.n7].sort((a, b) => a - b);
-                for (let i = 0; i < nums.length; i++) {
-                    for (let j = i + 1; j < nums.length; j++) {
-                        const paire = `${nums[i]}-${nums[j]}`;
-                        pairesCount[paire] = (pairesCount[paire] || 0) + 1;
-                    }
-                }
-            });
-            const sorted = Object.entries(pairesCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
-            resultDiv.innerHTML = '';
-            sorted.forEach(([paire, count]) => {
-                const [n1, n2] = paire.split('-');
-                resultDiv.innerHTML += `<div style="padding:10px;background:rgba(0,0,0,0.2);border-radius:10px;"><span class="boule-mini">${n1}</span><span class="boule-mini">${n2}</span><br><small>${count} fois</small></div>`;
-            });
         }
 
         async function testerMesNumeros() {
