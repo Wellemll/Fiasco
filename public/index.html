@@ -30,13 +30,16 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         select, input { padding: 10px; border-radius: 8px; background: #444; color: white; border: none; margin: 5px; }
         .input-loto-test { width: 40px; text-align: center; font-weight: bold; background: #555; color: white; border-radius: 5px; border: 1px solid #777; }
+        .input-loto-manuel { width: 40px; text-align: center; font-weight: bold; background: #444; border: 1px solid #ffb703; border-radius: 5px; color: white; }
+        
         .stat-highlight { font-size: 1.4em; font-weight: bold; color: #ffb703; }
         .archive-item { border-bottom: 1px solid #444; padding: 8px; display: flex; align-items: center; justify-content: space-between; font-size: 0.85em; }
+        .badge { padding: 4px 8px; border-radius: 5px; font-size: 0.75em; font-weight: bold; margin: 2px; display: inline-block; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📊 Fiasco <small style="font-size: 0.4em;">v3.4 Elite</small></h1>
+        <h1>📊 Fiasco <small style="font-size: 0.4em;">v3.5 Elite Manual</small></h1>
         
         <div id="compteur-data" style="margin-bottom: 15px; font-style: italic; color: #ffb703; font-size: 0.85em;">Chargement des données...</div>
 
@@ -51,8 +54,24 @@
             <div class="card" style="background: #3a5a40;">
                 <h3>Générateur Stratégique</h3>
                 <p><small>Puisage : 3 <span style="color:#ffb703">Chauds</span> + 2 <span style="color:#a8dadc">Retards</span> + 2 Aléatoires</small></p>
-                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer</button>
+                <button onclick="genererCode()" style="padding: 12px 25px; font-size: 16px; cursor: pointer; border-radius: 10px; border: none; background: #a3b18a; font-weight: bold; color:#1a1a1a;">Générer Automatiquement</button>
                 <div id="mon-code" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="card" style="border: 1px dashed #ffb703; background: #1a1a1a;">
+                <h4>🕹️ Mode Manuel : Tes numéros</h4>
+                <div id="inputs-manuel">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                    <input type="number" class="input-loto-manuel" min="1" max="50" oninput="analyserManuel()">
+                </div>
+                <div id="resultat-manuel" style="margin-top: 15px; font-size: 0.9em;">
+                    Saisis 7 numéros pour l'analyse...
+                </div>
             </div>
         </div>
 
@@ -110,6 +129,8 @@
 
     <script>
         let moyenneOptimale = 176;
+        let topChaudsGlobal = [];
+        let topRetardsGlobal = [];
 
         function openTab(evt, tabId) {
             const contents = document.getElementsByClassName("tab-content");
@@ -143,7 +164,10 @@
                 document.getElementById('resultat-somme').innerText = moyenneOptimale;
                 document.getElementById('resultat-suites').innerText = `${((nbS/data.length)*100).toFixed(0)}%`;
 
-                // --- FREQUENCES (Triées + Top 10 Jaune) ---
+                // Memoriser les Top 10 pour le mode manuel
+                topChaudsGlobal = Object.entries(counts).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>parseInt(e[0]));
+                topRetardsGlobal = Object.entries(lastSeen).sort((a,b)=>b[1]-a[1]).slice(0,10).map(e=>parseInt(e[0]));
+
                 const freqDiv = document.getElementById('frequence-stats');
                 freqDiv.innerHTML = '';
                 let freqArr = [];
@@ -154,7 +178,6 @@
                     freqDiv.innerHTML += `<div class="stat-item"><span class="boule ${c}">${item.n}</span><br><small>${item.c}</small></div>`;
                 });
 
-                // --- RETARDS (Triés + Top 10 Bleu) ---
                 const retardDiv = document.getElementById('retard-stats');
                 retardDiv.innerHTML = '';
                 let retArr = [];
@@ -172,6 +195,44 @@
                 sT.innerHTML = '<option value="">N°</option>';
                 for(let i=1; i<=50; i++) sT.innerHTML += `<option value="${i}">${i}</option>`;
             } catch(e){ console.error(e); }
+        }
+
+        // LOGIQUE MANUELLE
+        function analyserManuel() {
+            const inputs = document.querySelectorAll('.input-loto-manuel');
+            const mesNums = Array.from(inputs).map(i => parseInt(i.value)).filter(n => !isNaN(n) && n > 0 && n <= 50);
+            const resDiv = document.getElementById('resultat-manuel');
+
+            if (mesNums.length < 7) {
+                resDiv.innerHTML = `Saisis encore <strong>${7 - mesNums.length}</strong> numéro(s)...`;
+                return;
+            }
+
+            const somme = mesNums.reduce((a,b)=>a+b,0);
+            const diff = somme - moyenneOptimale;
+            const nbChauds = mesNums.filter(n => topChaudsGlobal.includes(n)).length;
+            const nbRetards = mesNums.filter(n => topRetardsGlobal.includes(n)).length;
+
+            const sommeValide = Math.abs(diff) <= 30;
+            const colorSomme = sommeValide ? "#a3b18a" : "#e63946";
+
+            resDiv.innerHTML = `
+                <div style="display:flex; justify-content:center; gap:10px; margin-top:10px;">
+                    <div style="border:1px solid ${colorSomme}; padding:5px; border-radius:10px; flex:1;">
+                        <small>SOMME</small><br>
+                        <strong style="color:${colorSomme}; font-size:1.2em;">${somme}</strong><br>
+                        <small>${sommeValide ? 'DANS LA GAP ✅' : 'HORS GAP ⚠️'}</small>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.05); padding:5px; border-radius:10px; flex:1;">
+                        <small>POSITIONNEMENT</small><br>
+                        <span class="badge" style="background:#ffb703; color:#023047;">${nbChauds} Chauds</span>
+                        <span class="badge" style="background:#457b9d; color:white;">${nbRetards} Retards</span>
+                    </div>
+                </div>
+                <div style="margin-top:10px; color:#ffb703; font-weight:bold;">
+                    ${nbChauds === 3 && nbRetards === 2 ? "🎯 COMBO STRATÉGIQUE (3-2) !" : ""}
+                </div>
+            `;
         }
 
         async function genererCode() {
